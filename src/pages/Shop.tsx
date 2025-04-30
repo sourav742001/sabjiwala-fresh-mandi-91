@@ -1,57 +1,13 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
+import { Link } from 'react-router-dom';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
-import { Leaf, Filter, ArrowRight } from 'lucide-react';
+import { Filter, ArrowRight } from 'lucide-react';
+import { vegetables } from '@/data/vegetables';
 
 const Shop = () => {
-  // Sample product data
-  const products = [
-    {
-      id: 1,
-      name: 'Organic Tomatoes',
-      image: 'https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80',
-      price: '₹30',
-      unit: 'kg',
-    },
-    {
-      id: 2,
-      name: 'Fresh Spinach',
-      image: 'https://images.unsplash.com/photo-1576045057995-568f588f82fb?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80',
-      price: '₹25',
-      unit: 'bunch',
-    },
-    {
-      id: 3,
-      name: 'Green Bell Peppers',
-      image: 'https://images.unsplash.com/photo-1513530176992-0cf39c4cbed4?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80',
-      price: '₹40',
-      unit: 'kg',
-    },
-    {
-      id: 4,
-      name: 'Red Onions',
-      image: 'https://images.unsplash.com/photo-1518977956812-cd3dbadaaf31?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80',
-      price: '₹35',
-      unit: 'kg',
-    },
-    {
-      id: 5,
-      name: 'Fresh Carrots',
-      image: 'https://images.unsplash.com/photo-1447175008436-054170c2e979?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80',
-      price: '₹30',
-      unit: 'kg',
-    },
-    {
-      id: 6,
-      name: 'Cucumber',
-      image: 'https://images.unsplash.com/photo-1589621316382-008455b857cd?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80',
-      price: '₹20',
-      unit: 'piece',
-    },
-  ];
-
   // Animation variants
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -161,7 +117,7 @@ const Shop = () => {
                   transition={{ duration: 0.6 }}
                   className="flex justify-between items-center mb-8"
                 >
-                  <h2 className="text-xl font-medium">All Products <span className="text-gray-500 text-sm">({products.length} items)</span></h2>
+                  <h2 className="text-xl font-medium">All Products <span className="text-gray-500 text-sm">({vegetables.length} items)</span></h2>
                   <div className="flex items-center gap-2">
                     <span className="text-sm text-gray-500">Sort by:</span>
                     <select className="border border-gray-200 rounded-sm p-1 text-sm focus:outline-none focus:border-emerald-700">
@@ -179,40 +135,47 @@ const Shop = () => {
                   animate="visible"
                   className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
                 >
-                  {products.map((product) => (
+                  {vegetables.map((vegetable) => (
                     <motion.div
-                      key={product.id}
+                      key={vegetable.id}
                       variants={itemVariants}
                       whileHover={{ y: -10 }}
                       className="border border-gray-100 group"
                     >
-                      <div className="w-full h-64 overflow-hidden bg-emerald-50">
-                        <motion.img 
-                          src={product.image}
-                          alt={product.name}
-                          className="w-full h-full object-cover"
-                          whileHover={{ scale: 1.05 }}
-                          transition={{ duration: 0.5 }}
-                        />
-                      </div>
-                      
-                      <div className="p-6 border-t border-gray-100">
-                        <h3 className="text-lg font-light mb-2 text-gray-800">{product.name}</h3>
-                        
-                        <div className="mb-4">
-                          <span className="text-lg font-medium text-emerald-700">
-                            {product.price}/{product.unit}
-                          </span>
+                      <Link to={`/vegetable/${vegetable.id}`} className="block">
+                        <div className="w-full h-64 overflow-hidden bg-emerald-50">
+                          <motion.img 
+                            src={vegetable.images[0].url}
+                            alt={vegetable.images[0].alt}
+                            className="w-full h-full object-cover transition-transform"
+                            whileHover={{ scale: 1.05 }}
+                            transition={{ duration: 0.5 }}
+                          />
                         </div>
                         
-                        <motion.button 
-                          whileHover={{ scale: 1.02 }}
-                          whileTap={{ scale: 0.98 }}
-                          className="w-full py-3 bg-emerald-700 text-white flex items-center justify-center gap-2 hover:bg-emerald-800 transition-colors rounded-sm"
-                        >
-                          Add to Cart
-                        </motion.button>
-                      </div>
+                        <div className="p-6 border-t border-gray-100">
+                          <div className="flex justify-between items-start mb-2">
+                            <h3 className="text-lg font-light text-gray-800">{vegetable.name}</h3>
+                            {vegetable.isOrganic && (
+                              <span className="bg-emerald-50 text-emerald-700 text-xs px-2 py-1 rounded-sm">Organic</span>
+                            )}
+                          </div>
+                          
+                          <div className="mb-4">
+                            <span className="text-lg font-medium text-emerald-700">
+                              ₹{vegetable.price}/{vegetable.unit}
+                            </span>
+                          </div>
+                          
+                          <motion.button 
+                            whileHover={{ scale: 1.02 }}
+                            whileTap={{ scale: 0.98 }}
+                            className="w-full py-3 bg-emerald-700 text-white flex items-center justify-center gap-2 hover:bg-emerald-800 transition-colors rounded-sm"
+                          >
+                            View Details
+                          </motion.button>
+                        </div>
+                      </Link>
                     </motion.div>
                   ))}
                 </motion.div>
