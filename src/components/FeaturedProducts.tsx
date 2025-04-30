@@ -1,6 +1,7 @@
 
 import React from 'react';
 import { ArrowRight, Plus, ShoppingCart } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 const FeaturedProducts = () => {
   const products = [
@@ -10,7 +11,7 @@ const FeaturedProducts = () => {
       image: 'https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80',
       price: 30,
       unit: 'kg',
-      discount: 5,
+      discount: 0,
     },
     {
       id: 2,
@@ -26,7 +27,7 @@ const FeaturedProducts = () => {
       image: 'https://images.unsplash.com/photo-1465379944081-7f47de8d74ac?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80',
       price: 40,
       unit: 'kg',
-      discount: 10,
+      discount: 0,
     },
     {
       id: 4,
@@ -36,104 +37,107 @@ const FeaturedProducts = () => {
       unit: 'kg',
       discount: 0,
     },
-    {
-      id: 5,
-      name: 'Cauliflower',
-      image: 'https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80',
-      price: 35,
-      unit: 'pc',
-      discount: 0,
-    },
-    {
-      id: 6,
-      name: 'Fresh Apples',
-      image: 'https://images.unsplash.com/photo-1493962853295-0fd70327578a?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80',
-      price: 120,
-      unit: 'kg',
-      discount: 15,
-    },
-    {
-      id: 7,
-      name: 'Lady Finger',
-      image: 'https://images.unsplash.com/photo-1465379944081-7f47de8d74ac?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80',
-      price: 50,
-      unit: 'kg',
-      discount: 0,
-    },
-    {
-      id: 8,
-      name: 'Green Chilli',
-      image: 'https://images.unsplash.com/photo-1501286353178-1ec871814838?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80',
-      price: 25,
-      unit: '250g',
-      discount: 0,
-    },
   ];
 
+  const containerVariants = {
+    hidden: {},
+    visible: {
+      transition: {
+        staggerChildren: 0.1
+      }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.6 } }
+  };
+
   return (
-    <section className="py-16 bg-white">
+    <section className="py-24 bg-white">
       <div className="container-custom">
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-10">
-          <div>
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900">Featured Products</h2>
-            <p className="mt-2 text-lg text-gray-600">
-              Fresh from the mandi, handpicked for you
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-16">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            viewport={{ once: true }}
+          >
+            <div className="w-20 h-1 bg-emerald-700 mb-6"></div>
+            <h2 className="text-3xl md:text-4xl font-light text-gray-900">Featured Collection</h2>
+            <p className="mt-3 text-lg text-gray-600 font-light">
+              Curated selections, exceptional quality
             </p>
-          </div>
-          <button className="mt-4 md:mt-0 flex items-center gap-2 text-sabjiwala-green font-medium">
-            View All Products <ArrowRight size={20} />
-          </button>
+          </motion.div>
+          <motion.button 
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            transition={{ delay: 0.3, duration: 0.6 }}
+            viewport={{ once: true }}
+            whileHover={{ x: 5 }}
+            className="mt-6 md:mt-0 flex items-center gap-2 text-emerald-700 font-medium"
+          >
+            View All Products <ArrowRight size={18} />
+          </motion.button>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        <motion.div 
+          variants={containerVariants}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true }}
+          className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8"
+        >
           {products.map((product) => (
-            <div key={product.id} className="card-product group">
-              {/* Product Badge */}
-              {product.discount > 0 && (
-                <div className="absolute top-2 left-2 bg-sabjiwala-orange text-white px-2 py-1 rounded-md text-sm font-medium z-10">
-                  {product.discount}% OFF
-                </div>
-              )}
-              
+            <motion.div 
+              key={product.id} 
+              variants={itemVariants}
+              whileHover={{ y: -10 }}
+              className="bg-white border border-gray-100 group"
+            >
               {/* Product Image */}
-              <div className="w-full h-48 overflow-hidden">
-                <img 
+              <div className="w-full h-64 overflow-hidden">
+                <motion.img 
+                  whileHover={{ scale: 1.05 }}
+                  transition={{ duration: 0.6 }}
                   src={product.image}
                   alt={product.name}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                  className="w-full h-full object-cover"
                 />
               </div>
               
               {/* Product Details */}
-              <div className="p-4">
-                <h3 className="text-lg font-semibold mb-2">{product.name}</h3>
+              <div className="p-6 border-t border-gray-100">
+                <h3 className="text-lg font-light mb-2 text-gray-800">{product.name}</h3>
                 
-                <div className="mb-3 flex items-center">
-                  <span className="text-lg font-bold text-sabjiwala-green">
-                    ₹{product.discount ? (product.price - (product.price * product.discount / 100)).toFixed(0) : product.price}/{product.unit}
+                <div className="mb-4">
+                  <span className="text-lg font-medium text-emerald-700">
+                    ₹{product.price}/{product.unit}
                   </span>
-                  
-                  {product.discount > 0 && (
-                    <span className="ml-2 text-sm text-gray-400 line-through">
-                      ₹{product.price}
-                    </span>
-                  )}
                 </div>
                 
                 {/* Add to Cart Button */}
-                <div className="flex gap-2">
-                  <button className="flex-1 py-2 btn-primary flex items-center justify-center gap-2">
-                    <ShoppingCart size={18} />
+                <div className="flex gap-3">
+                  <motion.button 
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    className="flex-1 py-3 bg-emerald-700 text-white flex items-center justify-center gap-2 hover:bg-emerald-800 transition-colors rounded-sm"
+                  >
+                    <ShoppingCart size={16} />
                     Add to Cart
-                  </button>
-                  <button className="p-2 border border-gray-300 rounded-lg hover:bg-gray-100 transition-colors">
-                    <Plus size={18} />
-                  </button>
+                  </motion.button>
+                  <motion.button 
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.95 }}
+                    className="p-3 border border-gray-200 hover:border-emerald-700 rounded-sm"
+                  >
+                    <Plus size={16} className="text-gray-600" />
+                  </motion.button>
                 </div>
               </div>
-            </div>
+            </motion.div>
           ))}
-        </div>
+        </motion.div>
       </div>
     </section>
   );
