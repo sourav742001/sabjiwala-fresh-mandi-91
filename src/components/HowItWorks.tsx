@@ -7,7 +7,7 @@ const HowItWorks = () => {
     {
       icon: <Package className="w-12 h-12 text-sabjiwala-green" />,
       title: 'We Source Fresh',
-      description: 'Every morning, we select the best produce from Delhi's sabji mandis.',
+      description: "Every morning, we select the best produce from Delhi's sabji mandis.",
       number: '01',
     },
     {
