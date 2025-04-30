@@ -3,10 +3,12 @@ import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { ShoppingCart, User, Search, Menu, X } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { useCart } from '@/context/CartContext';
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const location = useLocation();
+  const { cartCount } = useCart();
   
   const navLinks = [
     { name: 'Home', path: '/' },
@@ -76,9 +78,11 @@ const Header = () => {
             <motion.div whileHover={{ scale: 1.1 }}>
               <Link to="/cart" className="p-2 hover:bg-emerald-50 rounded-full transition-colors relative">
                 <ShoppingCart size={18} className="text-gray-600" />
-                <span className="absolute -top-1 -right-1 bg-emerald-700 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                  0
-                </span>
+                {cartCount > 0 && (
+                  <span className="absolute -top-1 -right-1 bg-emerald-700 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                    {cartCount}
+                  </span>
+                )}
               </Link>
             </motion.div>
           </div>
@@ -127,14 +131,16 @@ const Header = () => {
                 <User size={16} className="text-gray-600" />
                 <span className="text-sm">Account</span>
               </button>
-              <Link to="/cart" className="flex items-center space-x-1">
+              <Link to="/cart" className="flex items-center space-x-1" onClick={() => setIsMenuOpen(false)}>
                 <div className="relative">
                   <ShoppingCart size={16} className="text-gray-600" />
-                  <span className="absolute -top-1 -right-1 bg-emerald-700 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">
-                    0
-                  </span>
+                  {cartCount > 0 && (
+                    <span className="absolute -top-1 -right-1 bg-emerald-700 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">
+                      {cartCount}
+                    </span>
+                  )}
                 </div>
-                <span className="text-sm">Cart</span>
+                <span className="text-sm">Cart ({cartCount})</span>
               </Link>
             </div>
           </motion.div>

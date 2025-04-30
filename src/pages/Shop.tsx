@@ -1,13 +1,19 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
-import { Filter, ArrowRight } from 'lucide-react';
+import { Filter, ArrowRight, ShoppingCart } from 'lucide-react';
 import { vegetables } from '@/data/vegetables';
+import { useCart } from '@/context/CartContext';
+import { Button } from '@/components/ui/button';
+import { Vegetable } from '@/types/vegetable';
 
 const Shop = () => {
+  const [visibleCount, setVisibleCount] = useState(6);
+  const { addToCart } = useCart();
+
   // Animation variants
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -23,6 +29,13 @@ const Shop = () => {
     hidden: { opacity: 0, y: 20 },
     visible: { opacity: 1, y: 0, transition: { duration: 0.6 } }
   };
+
+  const handleLoadMore = () => {
+    setVisibleCount(prev => Math.min(prev + 6, vegetables.length));
+  };
+
+  const visibleVegetables = vegetables.slice(0, visibleCount);
+  const hasMore = visibleCount < vegetables.length;
 
   return (
     <div className="min-h-screen flex flex-col bg-white">
@@ -135,61 +148,31 @@ const Shop = () => {
                   animate="visible"
                   className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
                 >
-                  {vegetables.map((vegetable) => (
-                    <motion.div
-                      key={vegetable.id}
-                      variants={itemVariants}
-                      whileHover={{ y: -10 }}
-                      className="border border-gray-100 group"
-                    >
-                      <Link to={`/vegetable/${vegetable.id}`} className="block">
-                        <div className="w-full h-64 overflow-hidden bg-emerald-50">
-                          <motion.img 
-                            src={vegetable.images[0].url}
-                            alt={vegetable.images[0].alt}
-                            className="w-full h-full object-cover transition-transform"
-                            whileHover={{ scale: 1.05 }}
-                            transition={{ duration: 0.5 }}
-                          />
-                        </div>
-                        
-                        <div className="p-6 border-t border-gray-100">
-                          <div className="flex justify-between items-start mb-2">
-                            <h3 className="text-lg font-light text-gray-800">{vegetable.name}</h3>
-                            {vegetable.isOrganic && (
-                              <span className="bg-emerald-50 text-emerald-700 text-xs px-2 py-1 rounded-sm">Organic</span>
-                            )}
-                          </div>
-                          
-                          <div className="mb-4">
-                            <span className="text-lg font-medium text-emerald-700">
-                              ₹{vegetable.price}/{vegetable.unit}
-                            </span>
-                          </div>
-                          
-                          <motion.button 
-                            whileHover={{ scale: 1.02 }}
-                            whileTap={{ scale: 0.98 }}
-                            className="w-full py-3 bg-emerald-700 text-white flex items-center justify-center gap-2 hover:bg-emerald-800 transition-colors rounded-sm"
-                          >
-                            View Details
-                          </motion.button>
-                        </div>
-                      </Link>
-                    </motion.div>
+                  {visibleVegetables.map((vegetable) => (
+                    <VegetableCard 
+                      key={vegetable.id} 
+                      vegetable={vegetable} 
+                      addToCart={addToCart}
+                    />
                   ))}
                 </motion.div>
                 
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 0.8, duration: 0.6 }}
-                  className="mt-12 flex justify-center"
-                >
-                  <button className="flex items-center gap-2 px-6 py-3 border border-emerald-700 text-emerald-700 hover:bg-emerald-50 transition-colors rounded-sm">
-                    Load More <ArrowRight size={16} />
-                  </button>
-                </motion.div>
+                {hasMore && (
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.8, duration: 0.6 }}
+                    className="mt-12 flex justify-center"
+                  >
+                    <Button
+                      onClick={handleLoadMore}
+                      variant="outline"
+                      className="flex items-center gap-2 px-6 py-3 border border-emerald-700 text-emerald-700 hover:bg-emerald-50 transition-colors rounded-sm"
+                    >
+                      Load More <ArrowRight size={16} />
+                    </Button>
+                  </motion.div>
+                )}
               </div>
             </div>
           </div>
@@ -197,6 +180,66 @@ const Shop = () => {
       </main>
       <Footer />
     </div>
+  );
+};
+
+// Vegetable Card component
+const VegetableCard = ({ 
+  vegetable, 
+  addToCart 
+}: { 
+  vegetable: Vegetable; 
+  addToCart: (item: Vegetable, quantity: number) => void;
+}) => {
+  return (
+    <motion.div
+      variants={{
+        hidden: { opacity: 0, y: 20 },
+        visible: { opacity: 1, y: 0 }
+      }}
+      whileHover={{ y: -10 }}
+      className="border border-gray-100 group"
+    >
+      <Link to={`/vegetable/${vegetable.id}`} className="block">
+        <div className="w-full h-64 overflow-hidden bg-emerald-50">
+          <motion.img 
+            src={vegetable.images[0].url}
+            alt={vegetable.images[0].alt}
+            className="w-full h-full object-cover transition-transform"
+            whileHover={{ scale: 1.05 }}
+            transition={{ duration: 0.5 }}
+          />
+        </div>
+        
+        <div className="p-6 border-t border-gray-100">
+          <div className="flex justify-between items-start mb-2">
+            <h3 className="text-lg font-light text-gray-800">{vegetable.name}</h3>
+            {vegetable.isOrganic && (
+              <span className="bg-emerald-50 text-emerald-700 text-xs px-2 py-1 rounded-sm">Organic</span>
+            )}
+          </div>
+          
+          <div className="mb-4">
+            <span className="text-lg font-medium text-emerald-700">
+              ₹{vegetable.price}/{vegetable.unit}
+            </span>
+          </div>
+        </div>
+      </Link>
+      
+      <div className="px-6 pb-6">
+        <Button 
+          onClick={(e) => {
+            e.preventDefault();
+            addToCart(vegetable, 1);
+          }}
+          className="w-full py-2 bg-emerald-700 text-white flex items-center justify-center gap-2 hover:bg-emerald-800 transition-colors rounded-sm"
+        >
+          <ShoppingCart size={16} />
+          Add to Cart
+        </Button>
+      </div>
+    </motion.div>
   );
 };
 

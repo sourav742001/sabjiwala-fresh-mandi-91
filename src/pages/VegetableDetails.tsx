@@ -6,7 +6,7 @@ import { ArrowLeft, ShoppingCart, Leaf } from 'lucide-react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { getVegetableById } from '@/data/vegetables';
-import { toast } from 'sonner';
+import { useCart } from '@/context/CartContext';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 
@@ -15,6 +15,7 @@ const VegetableDetails = () => {
   const navigate = useNavigate();
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [quantity, setQuantity] = useState(1);
+  const { addToCart } = useCart();
   
   const vegetable = getVegetableById(id ? parseInt(id) : 0);
   
@@ -29,7 +30,7 @@ const VegetableDetails = () => {
   }
   
   const handleAddToCart = () => {
-    toast.success(`Added ${quantity} ${vegetable.name} to your cart`);
+    addToCart(vegetable, quantity);
   };
   
   const handleQuantityChange = (newQuantity: number) => {
