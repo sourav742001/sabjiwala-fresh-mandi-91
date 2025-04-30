@@ -17,24 +17,24 @@
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
 
-    --primary: 122 39% 49%;
+    --primary: 142 70% 35%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 36 100% 50%;
-    --secondary-foreground: 0 0% 0%;
+    --secondary: 142 30% 95%;
+    --secondary-foreground: 142 70% 35%;
 
-    --muted: 210 40% 96.1%;
+    --muted: 142 10% 96%;
     --muted-foreground: 215.4 16.3% 46.9%;
 
-    --accent: 36 100% 50%;
-    --accent-foreground: 0 0% 0%;
+    --accent: 142 40% 95%;
+    --accent-foreground: 142 70% 35%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
 
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
-    --ring: 122 39% 49%;
+    --ring: 142 70% 35%;
 
     --radius: 0.5rem;
   }
@@ -49,24 +49,24 @@
     --popover: 222.2 84% 4.9%;
     --popover-foreground: 210 40% 98%;
 
-    --primary: 122 39% 49%;
+    --primary: 142 70% 35%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 36 100% 50%;
-    --secondary-foreground: 0 0% 0%;
+    --secondary: 142 30% 15%;
+    --secondary-foreground: 0 0% 100%;
 
     --muted: 217.2 32.6% 17.5%;
     --muted-foreground: 215 20.2% 65.1%;
 
-    --accent: 36 100% 50%;
-    --accent-foreground: 0 0% 0%;
+    --accent: 142 30% 15%;
+    --accent-foreground: 0 0% 100%;
 
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 210 40% 98%;
 
     --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;
-    --ring: 122 39% 49%;
+    --ring: 142 70% 35%;
   }
 }
 
@@ -80,7 +80,7 @@
   }
 
   h1, h2, h3, h4, h5, h6 {
-    @apply font-poppins font-semibold;
+    @apply font-poppins font-light;
   }
 }
 
@@ -94,14 +94,22 @@
   }
   
   .btn-primary {
-    @apply bg-sabjiwala-green text-white hover:bg-sabjiwala-green-dark transition-colors duration-300 font-medium rounded-lg;
+    @apply bg-emerald-700 text-white hover:bg-emerald-800 transition-colors duration-300 font-light rounded-sm;
   }
   
   .btn-secondary {
-    @apply bg-sabjiwala-orange text-white hover:bg-sabjiwala-orange-dark transition-colors duration-300 font-medium rounded-lg;
+    @apply border border-emerald-700 text-emerald-700 hover:bg-emerald-50 transition-colors duration-300 font-light rounded-sm;
   }
   
   .card-product {
-    @apply bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300;
+    @apply bg-white border border-gray-100 overflow-hidden transition-all duration-300 hover:shadow-md;
   }
+}
+
+/* Remove App.css styles that might conflict */
+#root {
+  max-width: none;
+  margin: 0;
+  padding: 0;
+  text-align: left;
 }
