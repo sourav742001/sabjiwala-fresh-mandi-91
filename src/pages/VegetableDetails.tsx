@@ -9,6 +9,13 @@ import { getVegetableById } from '@/data/vegetables';
 import { useCart } from '@/context/CartContext';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
 
 const VegetableDetails = () => {
   const { id } = useParams<{ id: string }>();
@@ -72,18 +79,26 @@ const VegetableDetails = () => {
                 transition={{ duration: 0.6 }}
                 className="space-y-6"
               >
-                {/* Main Image */}
-                <motion.div 
-                  className="w-full h-96 bg-emerald-50 overflow-hidden"
-                  whileHover={{ scale: 1.02 }}
-                  transition={{ duration: 0.3 }}
-                >
-                  <img 
-                    src={vegetable.images[selectedImageIndex].url} 
-                    alt={vegetable.images[selectedImageIndex].alt} 
-                    className="w-full h-full object-cover"
-                  />
-                </motion.div>
+                {/* Main Image Carousel */}
+                <Carousel className="w-full">
+                  <CarouselContent>
+                    {vegetable.images.map((image, index) => (
+                      <CarouselItem key={image.id}>
+                        <div className="w-full h-96 rounded-lg overflow-hidden bg-emerald-50">
+                          <img 
+                            src={image.url} 
+                            alt={image.alt} 
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                      </CarouselItem>
+                    ))}
+                  </CarouselContent>
+                  <div className="flex items-center justify-center mt-2">
+                    <CarouselPrevious className="relative left-0 translate-y-0 mr-2" />
+                    <CarouselNext className="relative right-0 translate-y-0 ml-2" />
+                  </div>
+                </Carousel>
                 
                 {/* Image Thumbnails */}
                 <div className="flex space-x-4 overflow-x-auto pb-2">
@@ -93,7 +108,7 @@ const VegetableDetails = () => {
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
                       onClick={() => setSelectedImageIndex(index)}
-                      className={`w-20 h-20 flex-shrink-0 overflow-hidden border-2 ${
+                      className={`w-20 h-20 flex-shrink-0 rounded-md overflow-hidden border-2 ${
                         selectedImageIndex === index ? 'border-emerald-700' : 'border-transparent'
                       }`}
                     >
@@ -141,7 +156,7 @@ const VegetableDetails = () => {
                       size="icon"
                       onClick={() => handleQuantityChange(quantity - 1)}
                       disabled={quantity <= 1}
-                      className="h-10 w-10"
+                      className="h-10 w-10 rounded-full"
                     >
                       -
                     </Button>
@@ -150,7 +165,7 @@ const VegetableDetails = () => {
                       variant="outline" 
                       size="icon"
                       onClick={() => handleQuantityChange(quantity + 1)}
-                      className="h-10 w-10"
+                      className="h-10 w-10 rounded-full"
                     >
                       +
                     </Button>
@@ -160,7 +175,7 @@ const VegetableDetails = () => {
                 {/* Add to Cart Button */}
                 <Button
                   onClick={handleAddToCart}
-                  className="w-full py-6 bg-emerald-700 hover:bg-emerald-800 text-white"
+                  className="w-full py-6 bg-emerald-700 hover:bg-emerald-800 text-white rounded-md"
                 >
                   <ShoppingCart className="mr-2 h-5 w-5" />
                   Add to Cart
@@ -168,12 +183,12 @@ const VegetableDetails = () => {
                 
                 {/* Product Details Cards */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-12">
-                  <Card className="p-6 border-emerald-100">
+                  <Card className="p-6 border-emerald-100 rounded-lg">
                     <h3 className="text-lg font-medium mb-3">Origin</h3>
                     <p className="text-gray-700">{vegetable.origin}</p>
                   </Card>
                   
-                  <Card className="p-6 border-emerald-100">
+                  <Card className="p-6 border-emerald-100 rounded-lg">
                     <h3 className="text-lg font-medium mb-3">Nutritional Info</h3>
                     <p className="text-gray-700 text-sm">{vegetable.nutritionalInfo}</p>
                   </Card>

@@ -5,8 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { 
   BrowserRouter, 
   Routes, 
-  Route,
-  // Remove ScrollRestoration import
+  Route
 } from "react-router-dom";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
@@ -22,6 +21,14 @@ import Payment from "./pages/Payment";
 import OrderConfirmation from "./pages/OrderConfirmation";
 import TrackOrder from "./pages/TrackOrder";
 import Orders from "./pages/Orders";
+import Contact from "./pages/Contact";
+import FAQ from "./pages/FAQ";
+import ShippingPolicy from "./pages/ShippingPolicy";
+import Returns from "./pages/Returns";
+import Privacy from "./pages/Privacy";
+import Terms from "./pages/Terms";
+import Profile from "./pages/Profile";
+import Search from "./pages/Search";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { CartProvider } from "./context/CartContext";
 import React from "react";
@@ -75,7 +82,6 @@ const App = () => {
             <TooltipProvider>
               <Toaster />
               <Sonner />
-              {/* Remove the ScrollRestoration component from here */}
               <Routes>
                 <Route path="/" element={
                   <ErrorBoundary>
@@ -87,9 +93,21 @@ const App = () => {
                 <Route path="/cart" element={<Cart />} />
                 <Route path="/categories" element={<Categories />} />
                 <Route path="/about" element={<About />} />
+                
                 {/* Authentication routes */}
                 <Route path="/login" element={<Login />} />
                 <Route path="/signup" element={<Signup />} />
+                
+                {/* New pages */}
+                <Route path="/contact" element={<Contact />} />
+                <Route path="/faq" element={<FAQ />} />
+                <Route path="/shipping" element={<ShippingPolicy />} />
+                <Route path="/returns" element={<Returns />} />
+                <Route path="/privacy" element={<Privacy />} />
+                <Route path="/terms" element={<Terms />} />
+                <Route path="/profile" element={<Profile />} />
+                <Route path="/search" element={<Search />} />
+                
                 {/* Checkout and Order routes */}
                 <Route path="/checkout" element={<Checkout />} />
                 <Route path="/payment" element={<Payment />} />

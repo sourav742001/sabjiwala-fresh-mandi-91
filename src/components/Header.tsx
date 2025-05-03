@@ -1,13 +1,16 @@
 
 import React, { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { ShoppingCart, User, Search, Menu, X } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useCart } from '@/context/CartContext';
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
   const location = useLocation();
+  const navigate = useNavigate();
   const { cartCount } = useCart();
   
   const navLinks = [
@@ -15,7 +18,16 @@ const Header = () => {
     { name: 'Shop', path: '/shop' },
     { name: 'Categories', path: '/categories' },
     { name: 'About', path: '/about' },
+    { name: 'Contact', path: '/contact' },
   ];
+  
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      navigate(`/search?q=${encodeURIComponent(searchQuery)}`);
+      setIsSearchOpen(false);
+    }
+  };
   
   return (
     <motion.header 
@@ -65,17 +77,15 @@ const Header = () => {
               whileTap={{ scale: 0.9 }}
               className="p-2 hover:bg-emerald-50 rounded-full transition-colors" 
               aria-label="Search"
+              onClick={() => setIsSearchOpen(!isSearchOpen)}
             >
               <Search size={18} className="text-gray-600" />
             </motion.button>
-            <motion.button 
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.9 }}
-              className="p-2 hover:bg-emerald-50 rounded-full transition-colors" 
-              aria-label="Account"
-            >
-              <User size={18} className="text-gray-600" />
-            </motion.button>
+            <motion.div whileHover={{ scale: 1.1 }}>
+              <Link to="/profile" className="p-2 hover:bg-emerald-50 rounded-full transition-colors">
+                <User size={18} className="text-gray-600" />
+              </Link>
+            </motion.div>
             <motion.div whileHover={{ scale: 1.1 }}>
               <Link to="/cart" className="p-2 hover:bg-emerald-50 rounded-full transition-colors relative">
                 <ShoppingCart size={18} className="text-gray-600" />
@@ -100,6 +110,45 @@ const Header = () => {
           </motion.button>
         </div>
         
+        {/* Search Bar (Desktop) */}
+        {isSearchOpen && (
+          <motion.div 
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.3 }}
+            className="hidden md:block pt-4 border-t mt-4"
+          >
+            <form onSubmit={handleSearch} className="flex items-center">
+              <div className="relative flex-grow">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <Search size={16} className="text-gray-400" />
+                </div>
+                <input
+                  type="text"
+                  placeholder="Search for vegetables, fruits, or groceries..."
+                  className="pl-10 pr-4 py-2 w-full border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
+              </div>
+              <button 
+                type="submit" 
+                className="ml-2 px-4 py-2 bg-emerald-700 text-white rounded-md hover:bg-emerald-800 transition-colors"
+              >
+                Search
+              </button>
+              <button
+                type="button"
+                className="ml-2 p-2 text-gray-500 hover:text-gray-700"
+                onClick={() => setIsSearchOpen(false)}
+              >
+                <X size={20} />
+              </button>
+            </form>
+          </motion.div>
+        )}
+        
         {/* Mobile Menu */}
         {isMenuOpen && (
           <motion.div 
@@ -109,6 +158,29 @@ const Header = () => {
             transition={{ duration: 0.3 }}
             className="md:hidden py-4 border-t mt-4"
           >
+            <form onSubmit={handleSearch} className="mb-6">
+              <div className="flex items-center">
+                <div className="relative flex-grow">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <Search size={16} className="text-gray-400" />
+                  </div>
+                  <input
+                    type="text"
+                    placeholder="Search..."
+                    className="pl-10 pr-4 py-2 w-full border border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                  />
+                </div>
+                <button 
+                  type="submit" 
+                  className="ml-2 px-4 py-2 bg-emerald-700 text-white rounded-md hover:bg-emerald-800 transition-colors"
+                >
+                  Go
+                </button>
+              </div>
+            </form>
+            
             <nav className="flex flex-col space-y-4">
               {navLinks.map((link) => (
                 <Link 
@@ -124,14 +196,10 @@ const Header = () => {
               ))}
             </nav>
             <div className="flex items-center space-x-6 mt-6">
-              <button className="flex items-center space-x-1">
-                <Search size={16} className="text-gray-600" />
-                <span className="text-sm">Search</span>
-              </button>
-              <button className="flex items-center space-x-1">
+              <Link to="/profile" className="flex items-center space-x-1" onClick={() => setIsMenuOpen(false)}>
                 <User size={16} className="text-gray-600" />
-                <span className="text-sm">Account</span>
-              </button>
+                <span className="text-sm">Profile</span>
+              </Link>
               <Link to="/cart" className="flex items-center space-x-1" onClick={() => setIsMenuOpen(false)}>
                 <div className="relative">
                   <ShoppingCart size={16} className="text-gray-600" />

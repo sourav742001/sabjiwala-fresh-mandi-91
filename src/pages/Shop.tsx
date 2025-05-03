@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
-import { Filter, ArrowRight, ShoppingCart } from 'lucide-react';
+import { Filter, ArrowRight, ShoppingCart, Plus, Minus } from 'lucide-react';
 import { vegetables } from '@/data/vegetables';
 import { useCart } from '@/context/CartContext';
 import { Button } from '@/components/ui/button';
@@ -78,7 +78,7 @@ const Shop = () => {
                 transition={{ duration: 0.6, delay: 0.2 }}
                 className="w-full md:w-64 shrink-0"
               >
-                <div className="p-6 border border-emerald-100 rounded-sm">
+                <div className="p-6 border border-emerald-100 rounded-md">
                   <div className="flex items-center gap-2 mb-6">
                     <Filter size={18} className="text-emerald-700" />
                     <h2 className="text-xl font-medium">Filters</h2>
@@ -191,6 +191,23 @@ const VegetableCard = ({
   vegetable: Vegetable; 
   addToCart: (item: Vegetable, quantity: number) => void;
 }) => {
+  const [quantity, setQuantity] = useState(1);
+
+  const handleIncrement = () => {
+    setQuantity(prev => prev + 1);
+  };
+
+  const handleDecrement = () => {
+    if (quantity > 1) {
+      setQuantity(prev => prev - 1);
+    }
+  };
+
+  const handleAddToCart = (e: React.MouseEvent) => {
+    e.preventDefault();
+    addToCart(vegetable, quantity);
+  };
+
   return (
     <motion.div
       variants={{
@@ -198,7 +215,7 @@ const VegetableCard = ({
         visible: { opacity: 1, y: 0 }
       }}
       whileHover={{ y: -10 }}
-      className="border border-gray-100 group"
+      className="border border-gray-100 rounded-lg group overflow-hidden"
     >
       <Link to={`/vegetable/${vegetable.id}`} className="block">
         <div className="w-full h-64 overflow-hidden bg-emerald-50">
@@ -215,7 +232,7 @@ const VegetableCard = ({
           <div className="flex justify-between items-start mb-2">
             <h3 className="text-lg font-light text-gray-800">{vegetable.name}</h3>
             {vegetable.isOrganic && (
-              <span className="bg-emerald-50 text-emerald-700 text-xs px-2 py-1 rounded-sm">Organic</span>
+              <span className="bg-emerald-50 text-emerald-700 text-xs px-2 py-1 rounded-full">Organic</span>
             )}
           </div>
           
@@ -228,16 +245,35 @@ const VegetableCard = ({
       </Link>
       
       <div className="px-6 pb-6">
-        <Button 
-          onClick={(e) => {
-            e.preventDefault();
-            addToCart(vegetable, 1);
-          }}
-          className="w-full py-2 bg-emerald-700 text-white flex items-center justify-center gap-2 hover:bg-emerald-800 transition-colors rounded-sm"
-        >
-          <ShoppingCart size={16} />
-          Add to Cart
-        </Button>
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center border border-gray-200 rounded-md">
+            <Button 
+              variant="ghost" 
+              size="icon"
+              className="h-8 w-8 p-0"
+              onClick={handleDecrement}
+              disabled={quantity <= 1}
+            >
+              <Minus size={16} />
+            </Button>
+            <span className="w-8 text-center">{quantity}</span>
+            <Button 
+              variant="ghost" 
+              size="icon"
+              className="h-8 w-8 p-0"
+              onClick={handleIncrement}
+            >
+              <Plus size={16} />
+            </Button>
+          </div>
+          <Button 
+            onClick={handleAddToCart}
+            className="bg-emerald-700 text-white flex items-center justify-center gap-2 hover:bg-emerald-800 transition-colors rounded-md"
+          >
+            <ShoppingCart size={16} />
+            Add to Cart
+          </Button>
+        </div>
       </div>
     </motion.div>
   );
