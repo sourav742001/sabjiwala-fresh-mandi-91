@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { ArrowRight, Carrot, ShoppingBag, LeafyGreen, Apple } from 'lucide-react';
 import { motion } from 'framer-motion';
@@ -11,16 +10,6 @@ const HeroSection = () => {
   const [cursorPosition, setCursorPosition] = useState({ x: -100, y: -100 });
   const [isHovering, setIsHovering] = useState(false);
   const [activeVegetable, setActiveVegetable] = useState<React.ReactNode>(null);
-  
-  // Multiple rotating hero images
-  const heroImages = [
-    "https://images.unsplash.com/photo-1590779033100-9f60a05a013d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80",
-    "https://images.unsplash.com/photo-1498936178812-4b2e558d2937?auto=format&fit=crop&w=1000&q=80",
-    "https://images.unsplash.com/photo-1466721591366-2d5fba72006d?auto=format&fit=crop&w=1000&q=80",
-    "https://images.unsplash.com/photo-1590779033100-9f60a05a013d?auto=format&fit=crop&w=1000&q=80",
-    "https://images.unsplash.com/photo-1439886183900-e79ec0057170?auto=format&fit=crop&w=1000&q=80"
-  ];
-  const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
   // Rotate through different vegetable icons - initialize with safe default
   useEffect(() => {
@@ -42,15 +31,6 @@ const HeroSection = () => {
     } catch (error) {
       console.error("Error in vegetable rotation effect:", error);
     }
-  }, []);
-
-  // Rotate through hero images - updated to change every 3 seconds (3000ms)
-  useEffect(() => {
-    const imageInterval = setInterval(() => {
-      setCurrentImageIndex(prev => (prev + 1) % heroImages.length);
-    }, 3000); // Changed from 500ms to 3000ms (3 seconds)
-    
-    return () => clearInterval(imageInterval);
   }, []);
 
   // Track mouse position for custom cursor
@@ -316,7 +296,7 @@ const HeroSection = () => {
               </motion.div>
             </motion.div>
             
-            {/* Hero Image - Now with multiple rotating images */}
+            {/* Hero Image */}
             <motion.div 
               className="flex-1 relative"
               initial={{ opacity: 0, x: 30 }}
@@ -344,25 +324,15 @@ const HeroSection = () => {
                   animate={{ opacity: 1 }}
                   transition={{ duration: 1, delay: 1 }}
                 />
-                <motion.div className="relative w-full h-[500px] overflow-hidden">
-                  {heroImages.map((img, index) => (
-                    <motion.img 
-                      key={index}
-                      src={img} 
-                      alt={`Fresh vegetables from mandi ${index + 1}`} 
-                      className="absolute top-0 left-0 w-full h-full object-cover"
-                      initial={{ opacity: 0 }}
-                      animate={{ 
-                        opacity: currentImageIndex === index ? 1 : 0,
-                        scale: currentImageIndex === index ? 1 : 1.1
-                      }}
-                      transition={{ 
-                        opacity: { duration: 0.3 },
-                        scale: { duration: 1.5 } 
-                      }}
-                    />
-                  ))}
-                </motion.div>
+                <motion.img 
+                  src="https://images.unsplash.com/photo-1590779033100-9f60a05a013d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80" 
+                  alt="Fresh vegetables from mandi" 
+                  className="w-full h-[500px] object-cover"
+                  initial={{ scale: 1.1 }}
+                  animate={{ scale: 1 }}
+                  transition={{ duration: 1.5 }}
+                  whileHover={{ scale: 1.05, transition: { duration: 3 } }}
+                />
                 <motion.div 
                   className="absolute bottom-8 left-8 right-8 text-white z-20"
                   initial={{ opacity: 0, y: 20 }}
