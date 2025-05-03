@@ -4,10 +4,12 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import MapboxMap from "@/components/MapboxMap";
 import { motion } from "framer-motion";
+import DevelopmentModeBanner from "@/components/DevelopmentModeBanner";
 
 const MapTracking = () => {
   return (
     <>
+      <DevelopmentModeBanner className="sticky top-0 z-50" />
       <Header />
       <main className="min-h-screen py-12 bg-gray-50">
         <div className="container mx-auto px-4">
