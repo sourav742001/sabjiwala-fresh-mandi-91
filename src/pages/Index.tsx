@@ -33,6 +33,8 @@ import GiftingOptionsSection from '@/components/HomePageSections/GiftingOptionsS
 import ValuePropositionSection from '@/components/HomePageSections/ValuePropositionSection';
 import TestimonialsGridSection from '@/components/HomePageSections/TestimonialsGridSection';
 import FeaturedCategoriesSection from '@/components/HomePageSections/FeaturedCategoriesSection';
+import SabjiWalaAI from '@/components/SabjiWalaAI';
+import GoatAnimation from '@/components/GoatAnimation';
 
 const Index = () => {
   console.log("Index component rendering");
@@ -42,6 +44,9 @@ const Index = () => {
         <Header />
         <main className="flex-grow">
           <HeroSection />
+          <div className="container mx-auto px-4">
+            <GoatAnimation />
+          </div>
           <TrustBadges />
           <PromotionsCarousel />
           <FeaturesSection />
@@ -74,6 +79,7 @@ const Index = () => {
           <Newsletter />
         </main>
         <Footer />
+        <SabjiWalaAI />
       </div>
     );
   } catch (error) {

@@ -86,12 +86,12 @@ const SeasonalSection = () => {
         </div>
 
         <div className="text-center mt-10">
-          <Link to="/shop">
+          <Link to="/seasonal-items">
             <Button 
               variant="default" 
-              className="bg-emerald-600 hover:bg-emerald-700"
+              className="bg-emerald-600 hover:bg-emerald-700 group"
             >
-              View All Seasonal Items <ArrowRight size={16} className="ml-2" />
+              View All Seasonal Items <ArrowRight size={16} className="ml-2 group-hover:translate-x-1 transition-transform" />
             </Button>
           </Link>
         </div>

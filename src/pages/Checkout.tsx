@@ -14,8 +14,11 @@ import { useToast } from "@/components/ui/use-toast";
 import { useCart } from '@/context/CartContext';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
-import { MapPin, CreditCard, Truck } from 'lucide-react';
+import { MapPin, CreditCard, Truck, Tag, Map, Scissors, ArrowRight } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
+import { Progress } from "@/components/ui/progress";
+import { Link } from 'react-router-dom';
 
 // Form validation schema
 const addressSchema = z.object({
@@ -31,11 +34,22 @@ const addressSchema = z.object({
   saveAddress: z.boolean().default(false),
 });
 
+const availableCoupons = [
+  { code: "FIRST20", discount: 20, type: "percentage", minOrder: 500 },
+  { code: "FLAT100", discount: 100, type: "fixed", minOrder: 800 },
+  { code: "FREESHIP", discount: 40, type: "shipping", minOrder: 300 }
+];
+
 const Checkout = () => {
   const navigate = useNavigate();
   const { cartItems, cartTotal } = useCart();
   const [isLoading, setIsLoading] = useState(false);
+  const [mapDialogOpen, setMapDialogOpen] = useState(false);
+  const [selectedLocation, setSelectedLocation] = useState({ lat: 19.0760, lng: 72.8777, address: "Mumbai, Maharashtra" });
   const { toast } = useToast();
+  const [couponCode, setCouponCode] = useState("");
+  const [appliedCoupon, setAppliedCoupon] = useState<any>(null);
+  const [showCouponsList, setShowCouponsList] = useState(false);
 
   useEffect(() => {
     // Check if user is logged in
@@ -75,12 +89,23 @@ const Checkout = () => {
     },
   });
 
+  // Update address field when location is selected
+  useEffect(() => {
+    if (selectedLocation?.address) {
+      form.setValue("address", selectedLocation.address);
+    }
+  }, [selectedLocation, form]);
+
   function onSubmit(values: z.infer<typeof addressSchema>) {
     setIsLoading(true);
     console.log("Form values:", values);
 
     // Store checkout data for the next step
-    sessionStorage.setItem('checkoutData', JSON.stringify(values));
+    const checkoutData = {
+      ...values,
+      appliedCoupon: appliedCoupon
+    };
+    sessionStorage.setItem('checkoutData', JSON.stringify(checkoutData));
     
     // If card payment, go to payment page, otherwise go to confirmation
     if (values.paymentMethod === "card") {
@@ -89,7 +114,8 @@ const Checkout = () => {
       navigate("/order-confirmation", { 
         state: { 
           paymentMethod: "Cash on Delivery",
-          orderId: `ORD-${Math.floor(Math.random() * 1000000)}` 
+          orderId: `ORD-${Math.floor(Math.random() * 1000000)}`,
+          appliedCoupon: appliedCoupon
         } 
       });
     }
@@ -97,8 +123,77 @@ const Checkout = () => {
     setIsLoading(false);
   }
 
-  const deliveryFee = cartTotal >= 200 ? 0 : 40;
-  const totalAmount = cartTotal + deliveryFee;
+  const handleOpenMap = () => {
+    setMapDialogOpen(true);
+  };
+
+  const handleSelectLocation = (location: any) => {
+    setSelectedLocation(location);
+    setMapDialogOpen(false);
+    
+    // Update the form field
+    form.setValue("address", location.address);
+    toast({
+      title: "Location selected",
+      description: `${location.address} has been set as your delivery address`,
+    });
+  };
+
+  const handleApplyCoupon = () => {
+    const foundCoupon = availableCoupons.find(c => c.code === couponCode.toUpperCase());
+    if (!foundCoupon) {
+      toast({
+        title: "Invalid coupon",
+        description: "The coupon code you entered is invalid",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (cartTotal < foundCoupon.minOrder) {
+      toast({
+        title: "Minimum order value not met",
+        description: `This coupon requires a minimum order of ₹${foundCoupon.minOrder}`,
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setAppliedCoupon(foundCoupon);
+    toast({
+      title: "Coupon applied",
+      description: `${foundCoupon.code} has been applied to your order`,
+      variant: "success",
+    });
+  };
+
+  const handleRemoveCoupon = () => {
+    setAppliedCoupon(null);
+    setCouponCode("");
+    toast({
+      title: "Coupon removed",
+      description: "Coupon has been removed from your order",
+    });
+  };
+
+  // Calculate discount amount
+  const calculateDiscount = () => {
+    if (!appliedCoupon) return 0;
+    
+    if (appliedCoupon.type === "percentage") {
+      return Math.min((cartTotal * appliedCoupon.discount) / 100, 500); // Cap at 500
+    } else if (appliedCoupon.type === "fixed") {
+      return appliedCoupon.discount;
+    } else if (appliedCoupon.type === "shipping") {
+      return 40; // Free shipping
+    }
+    
+    return 0;
+  };
+
+  const discount = calculateDiscount();
+  const deliveryFee = appliedCoupon?.type === "shipping" ? 0 : (cartTotal >= 200 ? 0 : 40);
+  const totalAmount = cartTotal + deliveryFee - discount;
 
   return (
     <div className="min-h-screen flex flex-col bg-white">
@@ -121,7 +216,7 @@ const Checkout = () => {
             >
               <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-                  <div className="bg-white p-6 border border-gray-100 rounded-md">
+                  <div className="bg-white p-6 border border-gray-100 rounded-md shadow-sm">
                     <div className="flex items-center gap-3 mb-6">
                       <MapPin className="text-emerald-700" />
                       <h2 className="text-xl font-medium">Delivery Address</h2>
@@ -163,9 +258,21 @@ const Checkout = () => {
                           render={({ field }) => (
                             <FormItem>
                               <FormLabel>Address</FormLabel>
-                              <FormControl>
-                                <Input placeholder="123 Main St, Apartment 4B" {...field} />
-                              </FormControl>
+                              <div className="relative">
+                                <FormControl>
+                                  <Input placeholder="123 Main St, Apartment 4B" {...field} />
+                                </FormControl>
+                                <Button 
+                                  type="button" 
+                                  variant="outline" 
+                                  size="sm"
+                                  className="absolute right-1 top-1 text-xs h-8 border-emerald-600 text-emerald-700"
+                                  onClick={handleOpenMap}
+                                >
+                                  <Map size={14} className="mr-1" />
+                                  Select on Map
+                                </Button>
+                              </div>
                               <FormMessage />
                             </FormItem>
                           )}
@@ -237,8 +344,100 @@ const Checkout = () => {
                       </div>
                     </div>
                   </div>
+
+                  <div className="bg-white p-6 border border-gray-100 rounded-md shadow-sm">
+                    <div className="flex items-center gap-3 mb-6">
+                      <Tag className="text-emerald-700" />
+                      <h2 className="text-xl font-medium">Apply Coupon</h2>
+                    </div>
+                    
+                    {appliedCoupon ? (
+                      <div className="bg-emerald-50 p-4 rounded-md border border-emerald-200 mb-4">
+                        <div className="flex justify-between items-center">
+                          <div>
+                            <p className="font-medium text-emerald-700">{appliedCoupon.code}</p>
+                            <p className="text-sm text-emerald-600">
+                              {appliedCoupon.type === "percentage" 
+                                ? `${appliedCoupon.discount}% off (up to ₹500)` 
+                                : appliedCoupon.type === "fixed"
+                                ? `₹${appliedCoupon.discount} off`
+                                : "Free Shipping"}
+                            </p>
+                          </div>
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            className="text-red-500 hover:text-red-600 h-8"
+                            onClick={handleRemoveCoupon}
+                          >
+                            Remove
+                          </Button>
+                        </div>
+                      </div>
+                    ) : (
+                      <>
+                        <div className="flex space-x-2 mb-4">
+                          <Input
+                            placeholder="Enter coupon code"
+                            value={couponCode}
+                            onChange={(e) => setCouponCode(e.target.value)}
+                            className="uppercase"
+                          />
+                          <Button 
+                            type="button"
+                            onClick={handleApplyCoupon}
+                            className="bg-emerald-600 hover:bg-emerald-700"
+                            disabled={!couponCode}
+                          >
+                            Apply
+                          </Button>
+                        </div>
+                        <div>
+                          <Button 
+                            type="button" 
+                            variant="link" 
+                            onClick={() => setShowCouponsList(!showCouponsList)}
+                            className="p-0 text-emerald-600 hover:text-emerald-700 flex items-center"
+                          >
+                            <Scissors size={14} className="mr-1" />
+                            {showCouponsList ? "Hide available coupons" : "View available coupons"}
+                          </Button>
+                          
+                          {showCouponsList && (
+                            <div className="mt-3 grid grid-cols-1 md:grid-cols-2 gap-3">
+                              {availableCoupons.map((coupon) => (
+                                <div
+                                  key={coupon.code}
+                                  className="border border-dashed border-gray-200 p-3 rounded-md cursor-pointer hover:bg-gray-50"
+                                  onClick={() => {
+                                    setCouponCode(coupon.code);
+                                    setShowCouponsList(false);
+                                  }}
+                                >
+                                  <p className="font-medium">{coupon.code}</p>
+                                  <p className="text-sm text-gray-600">
+                                    {coupon.type === "percentage" 
+                                      ? `${coupon.discount}% off` 
+                                      : coupon.type === "fixed"
+                                      ? `₹${coupon.discount} off`
+                                      : "Free Shipping"}
+                                  </p>
+                                  <p className="text-xs text-gray-500">Min order: ₹{coupon.minOrder}</p>
+                                </div>
+                              ))}
+                              <div className="md:col-span-2 mt-2">
+                                <Link to="/coupons" className="text-emerald-600 hover:text-emerald-700 text-sm flex items-center">
+                                  View all coupons and offers <ArrowRight size={14} className="ml-1" />
+                                </Link>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      </>
+                    )}
+                  </div>
                   
-                  <div className="bg-white p-6 border border-gray-100 rounded-md">
+                  <div className="bg-white p-6 border border-gray-100 rounded-md shadow-sm">
                     <div className="flex items-center gap-3 mb-6">
                       <CreditCard className="text-emerald-700" />
                       <h2 className="text-xl font-medium">Payment Method</h2>
@@ -283,7 +482,7 @@ const Checkout = () => {
                     />
                   </div>
                   
-                  <div className="bg-white p-6 border border-gray-100 rounded-md">
+                  <div className="bg-white p-6 border border-gray-100 rounded-md shadow-sm">
                     <div className="flex items-center gap-3 mb-6">
                       <Truck className="text-emerald-700" />
                       <h2 className="text-xl font-medium">Delivery Options</h2>
@@ -312,7 +511,7 @@ const Checkout = () => {
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
             >
-              <div className="bg-gray-50 p-6 rounded-md sticky top-8">
+              <div className="bg-gray-50 p-6 rounded-md shadow-sm sticky top-8">
                 <h2 className="text-lg font-medium mb-4">Order Summary</h2>
                 
                 <div className="space-y-4 mb-4">
@@ -335,6 +534,12 @@ const Checkout = () => {
                     <span>Delivery Fee</span>
                     <span>{deliveryFee === 0 ? 'Free' : `₹${deliveryFee}`}</span>
                   </div>
+                  {discount > 0 && (
+                    <div className="flex justify-between text-sm text-emerald-600">
+                      <span>Discount</span>
+                      <span>-₹{discount}</span>
+                    </div>
+                  )}
                 </div>
                 
                 <Separator className="my-4" />
@@ -343,12 +548,50 @@ const Checkout = () => {
                   <span>Total</span>
                   <span className="text-emerald-700">₹{totalAmount}</span>
                 </div>
+
+                <div className="mt-6">
+                  <Progress value={80} className="h-2 bg-gray-200" />
+                  <p className="text-xs mt-2 text-gray-500">
+                    Add ₹{Math.max(0, 500 - cartTotal)} more to get free delivery
+                  </p>
+                </div>
               </div>
             </motion.div>
           </div>
         </div>
       </main>
       <Footer />
+
+      {/* Map Dialog */}
+      <Dialog open={mapDialogOpen} onOpenChange={setMapDialogOpen}>
+        <DialogContent className="sm:max-w-[600px]">
+          <DialogHeader>
+            <DialogTitle>Select Delivery Location</DialogTitle>
+            <DialogDescription>
+              Click on the map to select your delivery location
+            </DialogDescription>
+          </DialogHeader>
+          <div className="h-80 bg-gray-100 rounded-md flex items-center justify-center">
+            <div className="text-center">
+              <Map size={40} className="mx-auto mb-2 text-gray-400" />
+              <p className="text-gray-500">Map will load here</p>
+              {/* This would be replaced with actual map component */}
+            </div>
+          </div>
+          <div className="flex justify-end gap-2 mt-4">
+            <Button variant="outline" onClick={() => setMapDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={() => handleSelectLocation({ 
+              lat: 19.0760, 
+              lng: 72.8777, 
+              address: "Mumbai Central, Mumbai, Maharashtra 400008"
+            })}>
+              Confirm Location
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

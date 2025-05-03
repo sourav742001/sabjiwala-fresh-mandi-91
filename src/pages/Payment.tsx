@@ -13,7 +13,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { useCart } from '@/context/CartContext';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
-import { CreditCard, Calendar, FileText } from 'lucide-react';
+import { CreditCard, Calendar, FileText, CheckCircle, Tag } from 'lucide-react';
 
 // Form validation schema
 const paymentSchema = z.object({
@@ -38,8 +38,26 @@ const Payment = () => {
 
   // Get checkout data from session storage
   const checkoutData = JSON.parse(sessionStorage.getItem('checkoutData') || '{}');
-  const deliveryFee = cartTotal >= 200 ? 0 : 40;
-  const totalAmount = cartTotal + deliveryFee;
+  const appliedCoupon = checkoutData.appliedCoupon;
+  
+  // Calculate discount
+  const calculateDiscount = () => {
+    if (!appliedCoupon) return 0;
+    
+    if (appliedCoupon.type === "percentage") {
+      return Math.min((cartTotal * appliedCoupon.discount) / 100, 500); // Cap at 500
+    } else if (appliedCoupon.type === "fixed") {
+      return appliedCoupon.discount;
+    } else if (appliedCoupon.type === "shipping") {
+      return 40; // Free shipping
+    }
+    
+    return 0;
+  };
+  
+  const discount = calculateDiscount();
+  const deliveryFee = appliedCoupon?.type === "shipping" ? 0 : (cartTotal >= 200 ? 0 : 40);
+  const totalAmount = cartTotal + deliveryFee - discount;
 
   useEffect(() => {
     if (!checkoutData.fullName) {
@@ -95,7 +113,8 @@ const Payment = () => {
       navigate("/order-confirmation", { 
         state: { 
           paymentMethod: "Credit Card",
-          orderId: orderId
+          orderId: orderId,
+          appliedCoupon: appliedCoupon
         } 
       });
     }, 2000);
@@ -120,7 +139,7 @@ const Payment = () => {
               animate={{ opacity: 1, x: 0 }}
               className="md:col-span-2"
             >
-              <Card>
+              <Card className="shadow-sm">
                 <CardContent className="p-6">
                   <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
@@ -227,7 +246,7 @@ const Payment = () => {
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
             >
-              <div className="bg-gray-50 p-6 rounded-md">
+              <div className="bg-gray-50 p-6 rounded-md shadow-sm">
                 <h3 className="font-medium mb-4">Order Summary</h3>
                 
                 <div className="space-y-2 text-sm">
@@ -239,14 +258,43 @@ const Payment = () => {
                     <span>Delivery</span>
                     <span>{deliveryFee === 0 ? 'Free' : `₹${deliveryFee}`}</span>
                   </div>
+                  
+                  {appliedCoupon && (
+                    <div className="flex justify-between text-emerald-600">
+                      <span>Discount</span>
+                      <span>-₹{discount}</span>
+                    </div>
+                  )}
+                  
                   <div className="border-t my-2 pt-2 flex justify-between font-medium">
                     <span>Total</span>
                     <span className="text-emerald-700">₹{totalAmount}</span>
                   </div>
                 </div>
                 
+                {appliedCoupon && (
+                  <div className="mt-3 bg-emerald-50 p-3 rounded-md border border-emerald-100 text-xs">
+                    <div className="flex items-center mb-1">
+                      <Tag size={12} className="text-emerald-600 mr-1" />
+                      <span className="font-medium text-emerald-700">
+                        {appliedCoupon.code}
+                      </span>
+                    </div>
+                    <p className="text-emerald-600">
+                      {appliedCoupon.type === "percentage" 
+                        ? `${appliedCoupon.discount}% off (up to ₹500)` 
+                        : appliedCoupon.type === "fixed"
+                        ? `₹${appliedCoupon.discount} off`
+                        : "Free Shipping"}
+                    </p>
+                  </div>
+                )}
+                
                 <div className="mt-6 bg-emerald-50 p-3 rounded-md text-xs text-emerald-800">
-                  <p>Your payment is secure and encrypted</p>
+                  <div className="flex items-start">
+                    <CheckCircle size={14} className="text-emerald-600 mt-0.5 mr-1" />
+                    <p>Your payment is secure and encrypted</p>
+                  </div>
                 </div>
               </div>
             </motion.div>
