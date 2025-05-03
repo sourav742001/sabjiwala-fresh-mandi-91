@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import Header from '@/components/Header';
@@ -6,7 +5,6 @@ import Footer from '@/components/Footer';
 import { Phone, Mail, MapPin, Send } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
-import DevelopmentModeBanner from '@/components/DevelopmentModeBanner';
 
 const Contact = () => {
   const { toast } = useToast();
@@ -43,7 +41,6 @@ const Contact = () => {
 
   return (
     <div className="flex flex-col min-h-screen">
-      <DevelopmentModeBanner className="sticky top-0 z-50" />
       <Header />
       <main className="flex-grow">
         {/* Hero Section */}
