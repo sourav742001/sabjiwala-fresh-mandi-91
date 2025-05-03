@@ -97,12 +97,27 @@ const SeasonalItems = () => {
   const { toast } = useToast();
 
   const handleAddToCart = (item: any) => {
-    // Fix: Pass quantity as the second argument to addToCart
+    // Fix: Create a vegetable object with proper structure that matches the Vegetable type
     addToCart({
       id: item.id,
       name: item.name,
       price: item.price,
-      image: item.image,
+      // Use images array structure instead of single image property
+      images: [
+        {
+          id: 1,
+          url: item.image,
+          alt: item.name
+        }
+      ],
+      // Add other required properties from Vegetable type
+      description: item.description || "",
+      nutritionalInfo: "",
+      origin: item.origin || "",
+      isOrganic: false,
+      inStock: true,
+      category: "seasonal",
+      unit: item.unit || "kg",
       quantity: 1
     }, 1);
     
@@ -185,3 +200,4 @@ const SeasonalItems = () => {
 };
 
 export default SeasonalItems;
+
