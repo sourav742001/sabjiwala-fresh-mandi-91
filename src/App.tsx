@@ -29,8 +29,8 @@ import Privacy from "./pages/Privacy";
 import Terms from "./pages/Terms";
 import Profile from "./pages/Profile";
 import Search from "./pages/Search";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { CartProvider } from "./context/CartContext";
+import Recipes from "./pages/Recipes";
+import ViewRecipe from "./pages/ViewRecipe";
 import React from "react";
 
 // Create a simple error boundary component
@@ -97,6 +97,10 @@ const App = () => {
                 {/* Authentication routes */}
                 <Route path="/login" element={<Login />} />
                 <Route path="/signup" element={<Signup />} />
+                
+                {/* Recipe routes */}
+                <Route path="/recipes" element={<Recipes />} />
+                <Route path="/recipe/:id" element={<ViewRecipe />} />
                 
                 {/* New pages */}
                 <Route path="/contact" element={<Contact />} />
