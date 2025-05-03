@@ -11,21 +11,32 @@ import Newsletter from '@/components/Newsletter';
 import Footer from '@/components/Footer';
 
 const Index = () => {
-  return (
-    <div className="min-h-screen flex flex-col">
-      <Header />
-      <main className="flex-grow">
-        <HeroSection />
-        <FeaturesSection />
-        <CategoriesSection />
-        <FeaturedProducts />
-        <HowItWorks />
-        <Testimonials />
-        <Newsletter />
-      </main>
-      <Footer />
-    </div>
-  );
+  console.log("Index component rendering");
+  try {
+    return (
+      <div className="min-h-screen flex flex-col">
+        <Header />
+        <main className="flex-grow">
+          <HeroSection />
+          <FeaturesSection />
+          <CategoriesSection />
+          <FeaturedProducts />
+          <HowItWorks />
+          <Testimonials />
+          <Newsletter />
+        </main>
+        <Footer />
+      </div>
+    );
+  } catch (error) {
+    console.error("Error in Index component:", error);
+    return (
+      <div className="p-8 bg-red-50 text-red-800">
+        <h2>Error rendering Index page</h2>
+        <p>{(error as Error).message}</p>
+      </div>
+    );
+  }
 };
 
 export default Index;
