@@ -97,13 +97,15 @@ const SeasonalItems = () => {
   const { toast } = useToast();
 
   const handleAddToCart = (item: any) => {
+    // Fix: Pass quantity as the second argument to addToCart
     addToCart({
       id: item.id,
       name: item.name,
       price: item.price,
       image: item.image,
       quantity: 1
-    });
+    }, 1);
+    
     toast({
       title: "Added to cart",
       description: `${item.name} has been added to your cart`,
