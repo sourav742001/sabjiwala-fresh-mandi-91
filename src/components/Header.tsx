@@ -30,9 +30,10 @@ const Header = () => {
           <Link to="/" className="flex items-center gap-2">
             <motion.span 
               whileHover={{ scale: 1.05 }}
-              className="text-2xl font-light text-emerald-700"
+              className="text-2xl font-bold"
             >
-              The<span className="font-medium">SabjiWala</span>
+              <span className="text-emerald-700">The</span>
+              <span className="text-sabjiwala-orange">SabjiWala</span>
             </motion.span>
           </Link>
           
