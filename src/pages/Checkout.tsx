@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Separator } from "@/components/ui/separator";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { useCart } from '@/context/CartContext';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
@@ -163,7 +163,8 @@ const Checkout = () => {
     toast({
       title: "Coupon applied",
       description: `${foundCoupon.code} has been applied to your order`,
-      variant: "success",
+      // Changed from "success" to "default"
+      variant: "default", 
     });
   };
 

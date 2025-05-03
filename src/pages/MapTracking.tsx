@@ -238,7 +238,8 @@ const MapTracking = () => {
         toast({
           title: "Delivery Complete",
           description: "Your order has been delivered!",
-          variant: "success"
+          // Changed from "success" to "default"
+          variant: "default"
         });
         return;
       }
