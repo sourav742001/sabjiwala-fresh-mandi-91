@@ -1,6 +1,5 @@
 
 import React, { useState, useEffect, useRef } from 'react';
-import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
@@ -8,25 +7,42 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Alert, AlertDescription } from './ui/alert';
 import { useToast } from '@/hooks/use-toast';
 
+// Import mapbox-gl dynamically to avoid SSR issues
 const MapboxMap = () => {
   const mapContainer = useRef<HTMLDivElement>(null);
-  const map = useRef<mapboxgl.Map | null>(null);
+  const map = useRef<any | null>(null);
   const [mapboxToken, setMapboxToken] = useState<string>(() => {
     return localStorage.getItem('mapbox_token') || '';
   });
   const [showTokenInput, setShowTokenInput] = useState<boolean>(!mapboxToken);
   const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
+  const [mapboxGl, setMapboxGl] = useState<any | null>(null);
 
-  // Initialize map when token is available
+  // Dynamically import mapbox-gl
   useEffect(() => {
-    if (!mapContainer.current || !mapboxToken) return;
+    const loadMapboxGl = async () => {
+      try {
+        const mapboxModule = await import('mapbox-gl');
+        setMapboxGl(mapboxModule.default);
+      } catch (err) {
+        console.error('Error loading Mapbox GL:', err);
+        setError('Failed to load Mapbox GL. Please check your connection.');
+      }
+    };
+    
+    loadMapboxGl();
+  }, []);
+
+  // Initialize map when token is available and mapboxGl is loaded
+  useEffect(() => {
+    if (!mapContainer.current || !mapboxToken || !mapboxGl) return;
     
     try {
       // Initialize map with user-provided token
-      mapboxgl.accessToken = mapboxToken;
+      mapboxGl.accessToken = mapboxToken;
       
-      map.current = new mapboxgl.Map({
+      map.current = new mapboxGl.Map({
         container: mapContainer.current,
         style: 'mapbox://styles/mapbox/streets-v12',
         center: [77.1025, 28.7041], // Delhi coordinates
@@ -36,7 +52,7 @@ const MapboxMap = () => {
 
       // Add navigation controls
       map.current.addControl(
-        new mapboxgl.NavigationControl(),
+        new mapboxGl.NavigationControl(),
         'top-right'
       );
 
@@ -58,7 +74,7 @@ const MapboxMap = () => {
       setShowTokenInput(true);
       localStorage.removeItem('mapbox_token');
     }
-  }, [mapboxToken, toast]);
+  }, [mapboxToken, mapboxGl, toast]);
 
   const handleTokenSubmit = (e: React.FormEvent) => {
     e.preventDefault();
