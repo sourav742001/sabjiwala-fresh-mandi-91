@@ -7,7 +7,7 @@ import { Vegetable } from '@/types/vegetable';
 import { Link } from 'react-router-dom';
 import { useCart } from '@/context/CartContext';
 import { Button } from '@/components/ui/button';
-import { ShoppingCart, LeafyGreen, Carrot, Eggplant } from 'lucide-react';
+import { ShoppingCart, LeafyGreen, Carrot, Zucchini } from 'lucide-react';
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
 
 const Categories = () => {
@@ -28,7 +28,7 @@ const Categories = () => {
     { value: 'indian', label: 'Indian Grown', icon: null },
     { value: 'seasonal', label: 'Seasonal', icon: null },
     { value: 'root', label: 'Root Vegetables', icon: Carrot },
-    { value: 'exotic', label: 'Exotic', icon: Eggplant },
+    { value: 'exotic', label: 'Exotic', icon: Zucchini },
   ];
 
   // Filter vegetables based on selected category and filters
