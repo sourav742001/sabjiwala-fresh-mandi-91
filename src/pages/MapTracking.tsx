@@ -1,99 +1,75 @@
 
-import React from 'react';
-import { Button } from '@/components/ui/button';
-import Footer from '@/components/Footer';
-import Header from '@/components/Header';
-import { ArrowLeft, MapPin } from 'lucide-react';
-import { Link } from 'react-router-dom';
-
-// Import our new components
-import DeliveryMap from '@/components/MapTracking/DeliveryMap';
-import DeliveryInfo from '@/components/MapTracking/DeliveryInfo';
-import MapControls from '@/components/MapTracking/MapControls';
-import { Location } from '@/types/map';
-import { useMapTracking } from '@/hooks/useMapTracking';
+import React from "react";
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
+import MapboxMap from "@/components/MapboxMap";
+import { motion } from "framer-motion";
 
 const MapTracking = () => {
-  // Define initial locations - Delhi area coordinates
-  const initialLocations: Location[] = [
-    {
-      id: 'pickup',
-      name: 'Pickup: Jwalapuri Mandi',
-      coordinates: [77.0798, 28.6786],
-      type: 'pickup'
-    },
-    {
-      id: 'dropoff',
-      name: 'Dropoff: Your Home',
-      coordinates: [77.1978, 28.6129],
-      type: 'dropoff'
-    },
-    {
-      id: 'vehicle',
-      name: 'Delivery Vehicle',
-      coordinates: [77.0798, 28.6786], // Start at pickup location
-      type: 'vehicle'
-    }
-  ];
-
-  // Use our custom hook for tracking logic
-  const {
-    locations,
-    mapLoaded,
-    setMapLoaded,
-    simulationRunning,
-    handleRouteGenerated,
-    startSimulation,
-    stopSimulation,
-    resetSimulation
-  } = useMapTracking({ initialLocations });
-
   return (
-    <div className="flex flex-col min-h-screen">
+    <>
       <Header />
-      <main className="flex-1 container-custom py-6">
-        <div className="mb-6 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Link to="/orders" className="p-2 bg-gray-100 rounded-full hover:bg-gray-200">
-              <ArrowLeft size={20} />
-            </Link>
-            <h1 className="text-2xl font-semibold">Track Your Order</h1>
-          </div>
-          <MapControls 
-            mapLoaded={mapLoaded}
-            simulationRunning={simulationRunning}
-            onStartTracking={startSimulation}
-            onStopTracking={stopSimulation}
-            onResetTracking={resetSimulation}
-          />
-        </div>
+      <main className="min-h-screen py-12 bg-gray-50">
+        <div className="container mx-auto px-4">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="mb-8"
+          >
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">Track Your Order</h1>
+            <p className="text-gray-600">
+              See the real-time location of your delivery on the map below
+            </p>
+          </motion.div>
 
-        <div className="bg-white rounded-lg shadow-md overflow-hidden">
-          <div>
-            <div className="bg-emerald-700 text-white p-4 flex justify-between items-center">
-              <div className="flex items-center gap-2">
-                <MapPin className="h-5 w-5" />
-                <span className="font-medium">Live Vehicle Tracking</span>
+          <div className="bg-white p-4 md:p-6 rounded-lg shadow-sm mb-8">
+            <MapboxMap />
+          </div>
+
+          <div className="mt-8 bg-white p-6 rounded-lg shadow-sm">
+            <h2 className="text-xl font-semibold mb-4">Delivery Status</h2>
+            
+            <div className="flex items-center space-x-2 text-emerald-600 font-medium mb-6">
+              <span className="h-3 w-3 bg-emerald-500 rounded-full animate-pulse"></span>
+              <span>Order in transit - Expected delivery in 25 minutes</span>
+            </div>
+
+            <div className="space-y-4">
+              <div className="flex justify-between items-center pb-3 border-b">
+                <div>
+                  <p className="font-medium">Estimated Time of Arrival</p>
+                  <p className="text-gray-500">Today, 6:30 PM</p>
+                </div>
+                <div className="text-right">
+                  <p className="font-medium">Order Number</p>
+                  <p className="text-gray-500">#SBW2023051</p>
+                </div>
               </div>
-              <div className="flex items-center gap-2">
-                <span className="text-xs bg-emerald-600 py-1 px-2 rounded-full">
-                  {simulationRunning ? 'Vehicle Moving' : 'Ready to Track'}
-                </span>
+              
+              <div>
+                <p className="font-medium">Delivery Address</p>
+                <p className="text-gray-500">123 Karol Bagh, New Delhi, 110005</p>
+              </div>
+              
+              <div className="pt-3 border-t">
+                <p className="font-medium mb-2">Delivery Agent</p>
+                <div className="flex items-center">
+                  <div className="h-12 w-12 bg-emerald-100 rounded-full flex items-center justify-center text-emerald-700 font-bold mr-3">
+                    RK
+                  </div>
+                  <div>
+                    <p>Rahul Kumar</p>
+                    <p className="text-sm text-gray-500">+91 98765-43210</p>
+                  </div>
+                </div>
               </div>
             </div>
-            
-            <DeliveryMap 
-              locations={locations}
-              onRouteGenerated={handleRouteGenerated}
-              simulationRunning={simulationRunning}
-            />
           </div>
         </div>
-
-        <DeliveryInfo simulationRunning={simulationRunning} />
       </main>
       <Footer />
-    </div>
+    </>
   );
 };
 

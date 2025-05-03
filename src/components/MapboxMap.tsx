@@ -1,0 +1,161 @@
+
+import React, { useState, useEffect, useRef } from 'react';
+import mapboxgl from 'mapbox-gl';
+import 'mapbox-gl/dist/mapbox-gl.css';
+import { Button } from './ui/button';
+import { Input } from './ui/input';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from './ui/card';
+import { Alert, AlertDescription } from './ui/alert';
+import { useToast } from '@/hooks/use-toast';
+
+const MapboxMap = () => {
+  const mapContainer = useRef<HTMLDivElement>(null);
+  const map = useRef<mapboxgl.Map | null>(null);
+  const [mapboxToken, setMapboxToken] = useState<string>(() => {
+    return localStorage.getItem('mapbox_token') || '';
+  });
+  const [showTokenInput, setShowTokenInput] = useState<boolean>(!mapboxToken);
+  const [error, setError] = useState<string | null>(null);
+  const { toast } = useToast();
+
+  // Initialize map when token is available
+  useEffect(() => {
+    if (!mapContainer.current || !mapboxToken) return;
+    
+    try {
+      // Initialize map with user-provided token
+      mapboxgl.accessToken = mapboxToken;
+      
+      map.current = new mapboxgl.Map({
+        container: mapContainer.current,
+        style: 'mapbox://styles/mapbox/streets-v12',
+        center: [77.1025, 28.7041], // Delhi coordinates
+        zoom: 11,
+        attributionControl: true,
+      });
+
+      // Add navigation controls
+      map.current.addControl(
+        new mapboxgl.NavigationControl(),
+        'top-right'
+      );
+
+      // Success message
+      toast({
+        title: "Map initialized",
+        description: "Mapbox map has been successfully loaded",
+      });
+
+      setError(null);
+      
+      // Cleanup function
+      return () => {
+        map.current?.remove();
+      };
+    } catch (err) {
+      console.error('Error initializing Mapbox:', err);
+      setError('Failed to initialize map. Please check your Mapbox token.');
+      setShowTokenInput(true);
+      localStorage.removeItem('mapbox_token');
+    }
+  }, [mapboxToken, toast]);
+
+  const handleTokenSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (mapboxToken) {
+      // Save token to localStorage
+      localStorage.setItem('mapbox_token', mapboxToken);
+      setShowTokenInput(false);
+      
+      // If map is already initialized, remove it first
+      if (map.current) {
+        map.current.remove();
+        map.current = null;
+      }
+    } else {
+      setError('Please enter a valid Mapbox token');
+    }
+  };
+
+  const handleResetToken = () => {
+    localStorage.removeItem('mapbox_token');
+    setMapboxToken('');
+    setShowTokenInput(true);
+    
+    if (map.current) {
+      map.current.remove();
+      map.current = null;
+    }
+  };
+
+  return (
+    <div className="relative w-full h-[500px]">
+      {showTokenInput ? (
+        <Card className="absolute inset-0 z-10 flex flex-col">
+          <CardHeader>
+            <CardTitle>Mapbox API Token Required</CardTitle>
+            <CardDescription>
+              To view the map, please enter your Mapbox API token. 
+              You can find this in your Mapbox account dashboard.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleTokenSubmit} className="space-y-4">
+              {error && (
+                <Alert variant="destructive">
+                  <AlertDescription>{error}</AlertDescription>
+                </Alert>
+              )}
+              <div className="space-y-2">
+                <label htmlFor="token" className="text-sm font-medium">
+                  Mapbox Token
+                </label>
+                <Input 
+                  id="token"
+                  type="text" 
+                  placeholder="Enter your Mapbox public token" 
+                  value={mapboxToken}
+                  onChange={(e) => setMapboxToken(e.target.value)}
+                  className="w-full"
+                />
+                <p className="text-xs text-gray-500">
+                  Your token will be stored locally in your browser and is not sent to our servers.
+                </p>
+              </div>
+              <Button type="submit" className="w-full">
+                Initialize Map
+              </Button>
+            </form>
+          </CardContent>
+          <CardFooter className="text-xs text-gray-500 justify-center">
+            <a 
+              href="https://account.mapbox.com/" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="text-emerald-600 hover:underline"
+            >
+              Don't have a token? Sign up for Mapbox
+            </a>
+          </CardFooter>
+        </Card>
+      ) : (
+        <div className="absolute top-2 right-2 z-10">
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={handleResetToken}
+            className="bg-white bg-opacity-70 hover:bg-opacity-100"
+          >
+            Change API Key
+          </Button>
+        </div>
+      )}
+      <div 
+        ref={mapContainer} 
+        className="absolute inset-0 rounded-lg border border-gray-200"
+      />
+    </div>
+  );
+};
+
+export default MapboxMap;
