@@ -36,6 +36,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { CartProvider } from "@/context/CartContext";
 import SeasonalItems from "./pages/SeasonalItems";
 import Coupons from "./pages/Coupons";
+import MapTracking from "./pages/MapTracking";
 
 // Create a simple error boundary component
 class ErrorBoundary extends React.Component<{children: React.ReactNode}, {hasError: boolean, error: Error | null}> {
@@ -117,6 +118,7 @@ const App = () => {
                 <Route path="/search" element={<Search />} />
                 <Route path="/seasonal-items" element={<SeasonalItems />} />
                 <Route path="/coupons" element={<Coupons />} />
+                <Route path="/map-tracking" element={<MapTracking />} />
                 
                 {/* Checkout and Order routes */}
                 <Route path="/checkout" element={<Checkout />} />

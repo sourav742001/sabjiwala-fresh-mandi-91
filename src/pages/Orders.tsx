@@ -1,180 +1,165 @@
 
-import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { Button } from "@/components/ui/button";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
+import React from 'react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
-import { Check, Clock, ShoppingCart, Truck } from 'lucide-react';
-import { useToast } from '@/components/ui/use-toast';
-
-// Type definition for order
-interface Order {
-  id: string;
-  date: string;
-  status: string;
-  paymentMethod: string;
-  estimatedDelivery: string;
-}
+import { Truck, MapPin, Calendar, ChevronRight } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Link } from 'react-router-dom';
 
 const Orders = () => {
-  const navigate = useNavigate();
-  const { toast } = useToast();
-  const [orders, setOrders] = useState<Order[]>([]);
-  
-  useEffect(() => {
-    // Check if user is logged in
-    const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
-    if (!isLoggedIn) {
-      toast({
-        title: "Not logged in",
-        description: "Please login to view your orders",
-        variant: "destructive",
-      });
-      navigate("/login", { state: { returnUrl: "/orders" } });
-      return;
+  // Mock orders data
+  const orders = [
+    {
+      id: 'ORD-2023-001',
+      date: 'May 2, 2023',
+      status: 'Delivered',
+      total: '₹456.00',
+      items: [
+        { name: 'Fresh Tomatoes', quantity: '1 kg', price: '₹60.00' },
+        { name: 'Green Capsicum', quantity: '500 g', price: '₹45.00' },
+        { name: 'Red Onions', quantity: '2 kg', price: '₹80.00' },
+      ]
+    },
+    {
+      id: 'ORD-2023-002',
+      date: 'May 12, 2023',
+      status: 'In Transit',
+      total: '₹325.00',
+      items: [
+        { name: 'Organic Carrots', quantity: '1 kg', price: '₹75.00' },
+        { name: 'Fresh Spinach', quantity: '500 g', price: '₹40.00' },
+        { name: 'Cucumber', quantity: '1 kg', price: '₹55.00' },
+      ]
+    },
+    {
+      id: 'ORD-2023-003',
+      date: 'May 15, 2023',
+      status: 'Processing',
+      total: '₹510.00',
+      items: [
+        { name: 'Seasonal Fruits Combo', quantity: '1 pack', price: '₹299.00' },
+        { name: 'Daily Essentials Basket', quantity: '1 pack', price: '₹211.00' },
+      ]
     }
-    
-    // Get orders from localStorage
-    const savedOrders = JSON.parse(localStorage.getItem('orders') || '[]');
-    setOrders(savedOrders);
-  }, [navigate, toast]);
-
-  // Function to get badge color based on status
-  const getBadgeVariant = (status: string) => {
-    switch(status) {
-      case "Processing":
-        return "bg-blue-100 text-blue-800";
-      case "Shipped":
-        return "bg-yellow-100 text-yellow-800";
-      case "Out for Delivery":
-        return "bg-purple-100 text-purple-800";
-      case "Delivered":
-        return "bg-green-100 text-green-800";
-      default:
-        return "bg-gray-100 text-gray-800";
-    }
-  };
-
-  // Function to get status icon
-  const getStatusIcon = (status: string) => {
-    switch(status) {
-      case "Processing":
-        return <Clock size={14} />;
-      case "Shipped":
-        return <Truck size={14} />;
-      case "Out for Delivery":
-        return <Truck size={14} />;
-      case "Delivered":
-        return <Check size={14} />;
-      default:
-        return <Clock size={14} />;
-    }
-  };
+  ];
 
   return (
-    <div className="min-h-screen flex flex-col bg-white">
+    <div className="flex flex-col min-h-screen">
       <Header />
-      <main className="flex-grow py-8 md:py-12">
-        <div className="container-custom">
-          <div className="flex justify-between items-center mb-8">
-            <motion.h1 
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="text-2xl md:text-3xl font-light text-gray-900"
-            >
-              Your Orders
-            </motion.h1>
-            
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-            >
-              <Button 
-                variant="outline" 
-                className="border-emerald-700 text-emerald-700 hover:bg-emerald-50"
-                onClick={() => navigate('/shop')}
-              >
-                <ShoppingCart size={16} className="mr-2" />
-                Continue Shopping
-              </Button>
-            </motion.div>
+
+      <main className="flex-1 container-custom py-8">
+        <h1 className="text-2xl md:text-3xl font-bold mb-6">Your Orders</h1>
+
+        <div className="bg-white rounded-lg border border-gray-200 overflow-hidden mb-8">
+          <div className="p-6 border-b border-gray-200">
+            <h2 className="text-xl font-semibold">Active Orders</h2>
+            <p className="text-gray-600 text-sm mt-1">Track your current orders and view past orders history</p>
           </div>
-          
-          {orders.length === 0 ? (
-            <motion.div 
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="text-center py-16"
-            >
-              <div className="flex justify-center mb-4">
-                <ShoppingCart size={64} className="text-emerald-700 opacity-50" />
+
+          <div className="divide-y divide-gray-200">
+            {orders.map((order) => (
+              <div key={order.id} className="p-6">
+                <div className="flex flex-col md:flex-row justify-between mb-4">
+                  <div>
+                    <div className="flex items-center gap-3">
+                      <h3 className="font-semibold text-lg">{order.id}</h3>
+                      <span className={`text-xs px-3 py-1 rounded-full ${
+                        order.status === 'Delivered' 
+                          ? 'bg-green-100 text-green-800' 
+                          : order.status === 'In Transit' 
+                            ? 'bg-blue-100 text-blue-800' 
+                            : 'bg-orange-100 text-orange-800'
+                      }`}>
+                        {order.status}
+                      </span>
+                    </div>
+                    <div className="flex flex-wrap gap-4 mt-2 text-sm text-gray-600">
+                      <div className="flex items-center gap-1">
+                        <Calendar size={16} />
+                        <span>Ordered on {order.date}</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <MapPin size={16} />
+                        <span>Delhi NCR</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <Truck size={16} />
+                        <span>{order.status === 'Delivered' ? 'Delivered on ' + order.date : 'Estimated Delivery: Tomorrow'}</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="text-right mt-4 md:mt-0">
+                    <div className="font-semibold text-lg">{order.total}</div>
+                    <div className="text-sm text-gray-600">{order.items.length} Items</div>
+                  </div>
+                </div>
+
+                <div className="mt-4 pl-4 border-l-4 border-gray-200">
+                  {order.items.map((item, index) => (
+                    <div key={index} className="flex justify-between text-sm py-1">
+                      <div>{item.name} ({item.quantity})</div>
+                      <div>{item.price}</div>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="mt-5 flex flex-wrap gap-2">
+                  {order.status === 'In Transit' && (
+                    <Link to="/map-tracking">
+                      <Button variant="outline" className="text-sm border-emerald-600 text-emerald-700 hover:bg-emerald-50">
+                        <MapPin size={16} className="mr-1" />
+                        Track on Map
+                      </Button>
+                    </Link>
+                  )}
+                  
+                  <Link to={`/track-order/${order.id}`}>
+                    <Button variant="secondary" size="sm" className="text-sm">
+                      Track Order
+                      <ChevronRight size={16} className="ml-1" />
+                    </Button>
+                  </Link>
+                  
+                  <Button variant="ghost" size="sm" className="text-sm">
+                    View Details
+                  </Button>
+                  
+                  {order.status === 'Delivered' && (
+                    <Button variant="ghost" size="sm" className="text-sm">
+                      Reorder
+                    </Button>
+                  )}
+                </div>
               </div>
-              <h2 className="text-2xl font-light text-gray-700 mb-4">No Orders Yet</h2>
-              <p className="text-gray-500 mb-8">You haven't placed any orders yet.</p>
-              <Button asChild>
-                <Link to="/shop" className="bg-emerald-700 hover:bg-emerald-800">
-                  Start Shopping
-                </Link>
-              </Button>
-            </motion.div>
-          ) : (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="bg-white border border-gray-100 rounded-md overflow-hidden"
-            >
-              <div className="overflow-x-auto">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Order ID</TableHead>
-                      <TableHead>Date</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead>Payment Method</TableHead>
-                      <TableHead>Estimated Delivery</TableHead>
-                      <TableHead>Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {orders.map((order) => (
-                      <TableRow key={order.id}>
-                        <TableCell className="font-medium">
-                          {order.id}
-                        </TableCell>
-                        <TableCell>
-                          {new Date(order.date).toLocaleDateString()}
-                        </TableCell>
-                        <TableCell>
-                          <Badge className={`flex items-center gap-1 ${getBadgeVariant(order.status)}`}>
-                            {getStatusIcon(order.status)}
-                            <span>{order.status}</span>
-                          </Badge>
-                        </TableCell>
-                        <TableCell>{order.paymentMethod}</TableCell>
-                        <TableCell>
-                          {new Date(order.estimatedDelivery).toLocaleDateString()} at {new Date(order.estimatedDelivery).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                        </TableCell>
-                        <TableCell>
-                          <Button 
-                            size="sm"
-                            variant="outline"
-                            onClick={() => navigate(`/track-order/${order.id}`)}
-                          >
-                            Track Order
-                          </Button>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </div>
-            </motion.div>
-          )}
+            ))}
+          </div>
+        </div>
+
+        <div className="bg-emerald-50 border border-emerald-100 rounded-lg p-6 mb-8">
+          <h2 className="text-xl font-semibold mb-4">Order Information</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div>
+              <h3 className="font-medium mb-2">Shipping</h3>
+              <p className="text-sm text-gray-600">
+                We deliver all across Delhi NCR. For orders above ₹300, delivery is free.
+              </p>
+            </div>
+            <div>
+              <h3 className="font-medium mb-2">Returns</h3>
+              <p className="text-sm text-gray-600">
+                Not satisfied with the quality? We offer a 100% refund or replacement.
+              </p>
+            </div>
+            <div>
+              <h3 className="font-medium mb-2">Questions?</h3>
+              <p className="text-sm text-gray-600">
+                Contact our customer support team at support@thesabjiwala.com
+              </p>
+            </div>
+          </div>
         </div>
       </main>
+
       <Footer />
     </div>
   );
