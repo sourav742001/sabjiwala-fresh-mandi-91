@@ -9,6 +9,7 @@ import Shop from "./pages/Shop";
 import VegetableDetails from "./pages/VegetableDetails";
 import Cart from "./pages/Cart";
 import Categories from "./pages/Categories";
+import About from "./pages/About";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { CartProvider } from "./context/CartContext";
 
@@ -27,6 +28,7 @@ const App = () => (
             <Route path="/vegetable/:id" element={<VegetableDetails />} />
             <Route path="/cart" element={<Cart />} />
             <Route path="/categories" element={<Categories />} />
+            <Route path="/about" element={<About />} />
             {/* Add additional routes here as we build more pages */}
             <Route path="*" element={<NotFound />} />
           </Routes>
