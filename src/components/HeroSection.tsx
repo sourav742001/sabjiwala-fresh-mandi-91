@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { ArrowRight, Carrot, ShoppingBag, LeafyGreen, Apple } from 'lucide-react';
 import { motion } from 'framer-motion';
@@ -22,7 +21,7 @@ const HeroSection = () => {
     return () => clearInterval(intervalId);
   }, []);
 
-  // Track mouse position for custom cursor
+  // Track mouse position for custom cursor - fixed alignment
   const handleMouseMove = (e: React.MouseEvent) => {
     setCursorPosition({ x: e.clientX, y: e.clientY });
   };
@@ -57,12 +56,22 @@ const HeroSection = () => {
       onMouseEnter={() => setIsHovering(true)}
       onMouseLeave={() => setIsHovering(false)}
     >
-      {/* Custom vegetable cursor */}
+      {/* Custom vegetable cursor - fixed alignment issue */}
       {isHovering && (
         <motion.div 
           className="fixed w-8 h-8 pointer-events-none z-50 text-emerald-600"
-          animate={{ x: cursorPosition.x - 16, y: cursorPosition.y - 16, rotate: 25 }}
-          transition={{ type: "spring", stiffness: 500, damping: 28 }}
+          animate={{ 
+            x: cursorPosition.x - 16, 
+            y: cursorPosition.y - 16, 
+            rotate: 25 
+          }}
+          initial={{ x: cursorPosition.x - 16, y: cursorPosition.y - 16 }}
+          transition={{ 
+            type: "spring", 
+            stiffness: 1000, 
+            damping: 50,
+            mass: 0.5
+          }}
         >
           {activeVegetable}
         </motion.div>
@@ -144,6 +153,23 @@ const HeroSection = () => {
               </motion.span> 
             </motion.h1>
 
+            {/* Added Mandi on Wheels text with animation */}
+            <motion.h2
+              className="mt-4 text-2xl md:text-3xl font-light text-emerald-600 italic"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 1.4, duration: 0.6 }}
+            >
+              <motion.span
+                initial={{ backgroundSize: "0% 2px" }}
+                animate={{ backgroundSize: "100% 2px" }}
+                transition={{ delay: 1.8, duration: 0.8 }}
+                className="bg-gradient-to-r from-emerald-500 to-emerald-300 bg-no-repeat bg-bottom pb-1"
+              >
+                Mandi on Wheels
+              </motion.span>
+            </motion.h2>
+
             <motion.p 
               className="mt-8 text-lg text-gray-600 max-w-lg font-light leading-relaxed"
               custom={2}
@@ -207,6 +233,7 @@ const HeroSection = () => {
               custom={4}
               variants={textVariants}
             >
+              {/* Keep existing code for stats section */}
               {[
                 { label: "Fresh Daily", value: "100%" },
                 { label: "Experience", value: "Luxury" },
@@ -246,7 +273,7 @@ const HeroSection = () => {
             </motion.div>
           </motion.div>
           
-          {/* Hero Image with animation and hover effects */}
+          {/* Hero Image with animation and hover effects - Updated with fresh vegetable image */}
           <motion.div 
             className="flex-1 relative"
             initial={{ opacity: 0, x: 30 }}
@@ -275,7 +302,7 @@ const HeroSection = () => {
                 transition={{ duration: 1, delay: 1 }}
               />
               <motion.img 
-                src="https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80" 
+                src="https://images.unsplash.com/photo-1590779033100-9f60a05a013d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1000&q=80" 
                 alt="Fresh vegetables from mandi" 
                 className="w-full h-[500px] object-cover"
                 initial={{ scale: 1.1 }}
