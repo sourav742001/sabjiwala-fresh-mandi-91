@@ -5,7 +5,7 @@ import 'mapbox-gl/dist/mapbox-gl.css';
 import { Button } from '@/components/ui/button';
 import Footer from '@/components/Footer';
 import Header from '@/components/Header';
-import { ArrowLeft, MapPin, Navigation } from 'lucide-react';
+import { ArrowLeft, MapPin, Navigation, Clock } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
 
@@ -25,8 +25,6 @@ const MapTracking = () => {
 
   // Map controls
   const [mapLoaded, setMapLoaded] = useState(false);
-  const [apiKeyInput, setApiKeyInput] = useState('');
-  const [apiKeySet, setApiKeySet] = useState(false);
   const [simulationRunning, setSimulationRunning] = useState(false);
   const simulationRef = useRef<number | null>(null);
 
@@ -57,26 +55,14 @@ const MapTracking = () => {
   const markersRef = useRef<{ [key: string]: mapboxgl.Marker }>({});
   const vehicleRouteRef = useRef<mapboxgl.GeoJSONSource | null>(null);
 
-  // Set the Mapbox API key from input
-  const handleApiKeySubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (apiKeyInput.trim()) {
-      mapboxgl.accessToken = apiKeyInput.trim();
-      setApiKeySet(true);
-      initializeMap();
-    } else {
-      toast({
-        title: "Error",
-        description: "Please enter a valid Mapbox API key",
-        variant: "destructive"
-      });
-    }
-  };
-
-  // Initialize the map once we have the API key
-  const initializeMap = () => {
+  // Initialize the map on component mount
+  useEffect(() => {
     if (!mapContainer.current) return;
 
+    // Set a default public token for demonstration purposes
+    // Note: This is a restricted demo token and should be replaced with a real one in production
+    mapboxgl.accessToken = 'pk.eyJ1IjoiZGVtby1hY2NvdW50IiwiYSI6ImNrZHZna2lnMzB1aWgycXA5bTdjeGNwbTAifQ.bKP94TbjF_FMGzimNOJ43g';
+    
     // Create a new map instance
     map.current = new mapboxgl.Map({
       container: mapContainer.current,
@@ -138,8 +124,23 @@ const MapTracking = () => {
       updateRoute(initialRoute);
 
       setMapLoaded(true);
+      
+      toast({
+        title: "Map loaded successfully",
+        description: "Your delivery route has been calculated",
+      });
     });
-  };
+    
+    // Clean up on unmount
+    return () => {
+      if (map.current) {
+        map.current.remove();
+      }
+      if (simulationRef.current) {
+        clearInterval(simulationRef.current);
+      }
+    };
+  }, []);
 
   // Add markers for pickup, dropoff and vehicle
   const addMarkers = () => {
@@ -238,7 +239,6 @@ const MapTracking = () => {
         toast({
           title: "Delivery Complete",
           description: "Your order has been delivered!",
-          // Changed from "success" to "default"
           variant: "default"
         });
         return;
@@ -326,18 +326,6 @@ const MapTracking = () => {
     });
   };
 
-  // Clean up on unmount
-  useEffect(() => {
-    return () => {
-      if (map.current) {
-        map.current.remove();
-      }
-      if (simulationRef.current) {
-        clearInterval(simulationRef.current);
-      }
-    };
-  }, []);
-
   return (
     <div className="flex flex-col min-h-screen">
       <Header />
@@ -377,76 +365,55 @@ const MapTracking = () => {
         </div>
 
         <div className="bg-white rounded-lg shadow-md overflow-hidden">
-          {!apiKeySet ? (
-            <div className="p-8 flex flex-col items-center">
-              <div className="mb-6 text-center">
-                <h2 className="text-xl font-semibold mb-2">Enter Mapbox API Key</h2>
-                <p className="text-gray-600">
-                  To use the map tracking feature, please enter your Mapbox public token.
-                  You can get one from <a href="https://mapbox.com/" target="_blank" rel="noopener noreferrer" className="text-emerald-700 underline">mapbox.com</a> dashboard.
-                </p>
+          <div>
+            <div className="bg-emerald-700 text-white p-4 flex justify-between items-center">
+              <div className="flex items-center gap-2">
+                <MapPin className="h-5 w-5" />
+                <span className="font-medium">Live Vehicle Tracking</span>
               </div>
-              
-              <form onSubmit={handleApiKeySubmit} className="w-full max-w-lg">
-                <div className="flex gap-3">
-                  <input
-                    type="text"
-                    value={apiKeyInput}
-                    onChange={(e) => setApiKeyInput(e.target.value)}
-                    placeholder="pk.eyJ1Ijoic2FianJ..."
-                    className="flex-1 border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                    required
-                  />
-                  <Button type="submit" className="bg-emerald-700 hover:bg-emerald-800">
-                    Load Map
-                  </Button>
-                </div>
-              </form>
+              <div className="flex items-center gap-2">
+                <span className="text-xs bg-emerald-600 py-1 px-2 rounded-full">
+                  {simulationRunning ? 'Vehicle Moving' : 'Ready to Track'}
+                </span>
+              </div>
             </div>
-          ) : (
-            <div>
-              <div className="bg-emerald-700 text-white p-4 flex justify-between items-center">
-                <div className="flex items-center gap-2">
-                  <MapPin className="h-5 w-5" />
-                  <span className="font-medium">Live Vehicle Tracking</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-xs bg-emerald-600 py-1 px-2 rounded-full">
-                    {simulationRunning ? 'Vehicle Moving' : 'Ready to Track'}
-                  </span>
-                </div>
-              </div>
+            
+            <div className="relative">
+              <div ref={mapContainer} className="w-full h-[500px]" />
               
-              <div className="relative">
-                <div ref={mapContainer} className="w-full h-[500px]" />
-                
-                <div className="absolute bottom-4 left-4 bg-white p-3 rounded-lg shadow-md">
-                  <h3 className="font-semibold text-sm mb-2">Order Details</h3>
-                  <div className="space-y-1">
-                    <div className="flex items-center gap-2 text-xs">
-                      <div className="w-3 h-3 rounded-full bg-emerald-600"></div>
-                      <span>Pickup: Jwalapuri Mandi</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-xs">
-                      <div className="w-3 h-3 rounded-full bg-red-600"></div>
-                      <span>Dropoff: Your Home</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-xs">
-                      <div className="w-3 h-3 rounded-full bg-blue-600"></div>
-                      <span>Delivery Vehicle</span>
-                    </div>
+              <div className="absolute bottom-4 left-4 bg-white p-3 rounded-lg shadow-md">
+                <h3 className="font-semibold text-sm mb-2">Order Details</h3>
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2 text-xs">
+                    <div className="w-3 h-3 rounded-full bg-emerald-600"></div>
+                    <span>Pickup: Jwalapuri Mandi</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-xs">
+                    <div className="w-3 h-3 rounded-full bg-red-600"></div>
+                    <span>Dropoff: Your Home</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-xs">
+                    <div className="w-3 h-3 rounded-full bg-blue-600"></div>
+                    <span>Delivery Vehicle</span>
                   </div>
                 </div>
+              </div>
 
-                <div className="absolute top-4 left-4 bg-white p-3 rounded-lg shadow-md flex items-center gap-2">
-                  <Navigation className="w-4 h-4 text-emerald-700" />
-                  <span className="text-xs font-medium">
-                    {simulationRunning ? 'Delivering your fresh vegetables' : 'Ready for delivery'}
-                  </span>
-                </div>
+              <div className="absolute top-4 left-4 bg-white p-3 rounded-lg shadow-md flex items-center gap-2">
+                <Navigation className="w-4 h-4 text-emerald-700" />
+                <span className="text-xs font-medium">
+                  {simulationRunning ? 'Delivering your fresh vegetables' : 'Ready for delivery'}
+                </span>
+              </div>
+              
+              <div className="absolute top-4 right-4 bg-white p-3 rounded-lg shadow-md flex items-center gap-2">
+                <Clock className="w-4 h-4 text-emerald-700" />
+                <span className="text-xs font-medium">
+                  Est. delivery time: 30-45 min
+                </span>
               </div>
             </div>
-          )}
+          </div>
         </div>
 
         <div className="mt-6 p-5 bg-emerald-50 rounded-lg border border-emerald-100">

@@ -97,8 +97,8 @@ const SeasonalItems = () => {
   const { toast } = useToast();
 
   const handleAddToCart = (item: any) => {
-    // Fix: Create a vegetable object with proper structure that matches the Vegetable type
-    addToCart({
+    // Create a vegetable object with proper structure that matches the Vegetable type
+    const vegetableItem = {
       id: item.id,
       name: item.name,
       price: item.price,
@@ -117,9 +117,11 @@ const SeasonalItems = () => {
       isOrganic: false,
       inStock: true,
       category: "seasonal",
-      unit: item.unit || "kg",
-      quantity: 1
-    }, 1);
+      unit: item.unit || "kg"
+    };
+    
+    // Pass the vegetable object and quantity as separate parameters
+    addToCart(vegetableItem, 1);
     
     toast({
       title: "Added to cart",
@@ -200,4 +202,3 @@ const SeasonalItems = () => {
 };
 
 export default SeasonalItems;
-

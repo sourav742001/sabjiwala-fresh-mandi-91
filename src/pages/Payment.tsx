@@ -5,7 +5,7 @@ import { motion } from 'framer-motion';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { z } from 'zod';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -13,7 +13,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { useCart } from '@/context/CartContext';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
-import { CreditCard, Calendar, FileText, CheckCircle, Tag } from 'lucide-react';
+import { CreditCard, Calendar, FileText, CheckCircle, Tag, DollarSign } from 'lucide-react';
 
 // Form validation schema
 const paymentSchema = z.object({
@@ -35,7 +35,8 @@ const Payment = () => {
   const { cartTotal, clearCart } = useCart();
   const [isProcessing, setIsProcessing] = useState(false);
   const { toast } = useToast();
-
+  const [showCardIcons, setShowCardIcons] = useState(true);
+  
   // Get checkout data from session storage
   const checkoutData = JSON.parse(sessionStorage.getItem('checkoutData') || '{}');
   const appliedCoupon = checkoutData.appliedCoupon;
@@ -94,17 +95,51 @@ const Payment = () => {
     onChange(formattedValue);
   };
 
+  // Handle card number input with formatting
+  const handleCardNumberChange = (e: React.ChangeEvent<HTMLInputElement>, onChange: (...event: any[]) => void) => {
+    const value = e.target.value.replace(/\D/g, ''); // Remove any non-digits
+    onChange(value.substring(0, 16)); // Limit to 16 digits
+    
+    // Show card icon based on first digit
+    setShowCardIcons(true);
+  };
+
+  // Determine credit card type based on number
+  const getCardType = (cardNumber: string) => {
+    const first = cardNumber.charAt(0);
+    if (!first) return null;
+    
+    if (first === '4') return 'visa';
+    if (first === '5') return 'mastercard';
+    if (first === '3') return 'amex';
+    if (first === '6') return 'discover';
+    return 'generic';
+  };
+
   function onSubmit(values: z.infer<typeof paymentSchema>) {
     console.log("Payment values:", values);
     setIsProcessing(true);
     
-    // Simulate payment processing
+    // Show payment processing toast
+    toast({
+      title: "Processing payment",
+      description: "Please wait while we process your payment...",
+    });
+    
+    // Simulate Stripe payment processing
     setTimeout(() => {
       console.log("Payment processed successfully");
       setIsProcessing(false);
       
       // Generate a random order ID
       const orderId = `ORD-${Math.floor(Math.random() * 1000000)}`;
+      
+      // Success toast
+      toast({
+        title: "Payment successful",
+        description: `Your payment of ₹${totalAmount} has been processed.`,
+        variant: "default",
+      });
       
       // Clear cart after successful order
       clearCart();
@@ -148,17 +183,37 @@ const Payment = () => {
                         <h2 className="text-xl font-medium">Card Information</h2>
                       </div>
 
+                      <div className="bg-emerald-50 p-4 mb-4 rounded-md border border-emerald-100">
+                        <p className="text-sm text-emerald-700 flex items-center gap-2">
+                          <DollarSign className="h-4 w-4" />
+                          <span>This is a demo checkout. Use any valid-format card details (e.g., "4242424242424242" for card number).</span>
+                        </p>
+                      </div>
+
                       <FormField
                         control={form.control}
                         name="cardNumber"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Card Number</FormLabel>
+                            <FormLabel className="flex items-center justify-between">
+                              <span>Card Number</span>
+                              {showCardIcons && (
+                                <div className="flex gap-2">
+                                  <div className={`w-10 h-6 rounded flex items-center justify-center ${getCardType(field.value) === 'visa' ? 'bg-blue-600' : 'bg-gray-200'}`}>
+                                    {getCardType(field.value) === 'visa' && <span className="text-white text-xs font-bold">VISA</span>}
+                                  </div>
+                                  <div className={`w-10 h-6 rounded flex items-center justify-center ${getCardType(field.value) === 'mastercard' ? 'bg-red-500' : 'bg-gray-200'}`}>
+                                    {getCardType(field.value) === 'mastercard' && <span className="text-white text-xs font-bold">MC</span>}
+                                  </div>
+                                </div>
+                              )}
+                            </FormLabel>
                             <FormControl>
                               <Input 
-                                placeholder="1234 5678 9012 3456"
+                                placeholder="1234 5678 9012 3456" 
                                 maxLength={16}
                                 {...field}
+                                onChange={(e) => handleCardNumberChange(e, field.onChange)}
                               />
                             </FormControl>
                             <FormMessage />
@@ -231,15 +286,31 @@ const Payment = () => {
                       
                       <Button 
                         type="submit" 
-                        className="w-full bg-emerald-700 hover:bg-emerald-800"
+                        className="w-full bg-emerald-700 hover:bg-emerald-800 flex items-center justify-center gap-2"
                         disabled={isProcessing}
                       >
-                        {isProcessing ? "Processing..." : `Pay ₹${totalAmount}`}
+                        {isProcessing ? (
+                          <>
+                            <span className="animate-pulse">Processing...</span>
+                            <div className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                          </>
+                        ) : (
+                          <>Pay ₹{totalAmount}</>
+                        )}
                       </Button>
                     </form>
                   </Form>
                 </CardContent>
               </Card>
+              
+              <div className="mt-6 text-center">
+                <div className="flex justify-center space-x-4">
+                  <div className="w-10 h-6 bg-gray-200 rounded"></div>
+                  <div className="w-10 h-6 bg-gray-200 rounded"></div>
+                  <div className="w-10 h-6 bg-gray-200 rounded"></div>
+                </div>
+                <p className="text-xs text-gray-500 mt-2">Your payment information is secure and encrypted</p>
+              </div>
             </motion.div>
 
             <motion.div 
@@ -295,6 +366,14 @@ const Payment = () => {
                     <CheckCircle size={14} className="text-emerald-600 mt-0.5 mr-1" />
                     <p>Your payment is secure and encrypted</p>
                   </div>
+                </div>
+                
+                <div className="mt-4 pt-4 border-t border-gray-200">
+                  <h4 className="text-sm font-medium mb-2">Delivery Address</h4>
+                  <p className="text-xs text-gray-600">{checkoutData.fullName}</p>
+                  <p className="text-xs text-gray-600">{checkoutData.address}</p>
+                  <p className="text-xs text-gray-600">{checkoutData.city}, {checkoutData.state} {checkoutData.pincode}</p>
+                  <p className="text-xs text-gray-600">Phone: {checkoutData.phone}</p>
                 </div>
               </div>
             </motion.div>
