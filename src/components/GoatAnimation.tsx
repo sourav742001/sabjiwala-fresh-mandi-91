@@ -4,8 +4,6 @@ import { motion } from 'framer-motion';
 
 const GoatAnimation = () => {
   const [position, setPosition] = useState(0);
-  const [isEating, setIsEating] = useState(false);
-  const [grassPatches, setGrassPatches] = useState([10, 25, 40, 55, 70, 85]);
   
   useEffect(() => {
     const interval = setInterval(() => {
@@ -14,30 +12,15 @@ const GoatAnimation = () => {
         if (prevPosition >= 95) {
           return -10;
         }
-
-        // Check if near a grass patch
-        const nearGrass = grassPatches.some(patch => 
-          Math.abs(prevPosition - patch) < 2 && !isEating
-        );
         
-        // Stop to eat grass if near a patch
-        if (nearGrass) {
-          setIsEating(true);
-          // Remove the eaten grass patch after a delay
-          setTimeout(() => {
-            setGrassPatches(prev => prev.filter(p => Math.abs(p - prevPosition) >= 2));
-            setIsEating(false);
-          }, 2000);
-          return prevPosition;
-        }
-        
-        // Continue moving if not eating
-        return isEating ? prevPosition : prevPosition + 1.5; // Faster movement
+        // Move faster to complete in roughly 15 seconds
+        // (105% total distance / speed increment per 50ms)
+        return prevPosition + 0.35;
       });
-    }, 50); // Lower interval for smoother movement
+    }, 50); // 50ms interval for smooth movement
 
     return () => clearInterval(interval);
-  }, [isEating, grassPatches]);
+  }, []);
 
   return (
     <div className="relative w-full h-16 overflow-hidden my-4">
@@ -47,44 +30,14 @@ const GoatAnimation = () => {
           className="h-full bg-emerald-500"
           initial={{ width: 0 }}
           animate={{ width: '100%' }}
-          transition={{ duration: 20, ease: "linear", repeat: Infinity }}
+          transition={{ duration: 15, ease: "linear", repeat: Infinity }}
         />
       </div>
-      
-      {/* Grass patches - more realistic */}
-      {grassPatches.map((pos, index) => (
-        <div 
-          key={index}
-          className="absolute top-6 h-4 w-10"
-          style={{ left: `${pos}%` }}
-        >
-          <div className="flex space-x-0.5">
-            {[...Array(7)].map((_, i) => (
-              <div 
-                key={i}
-                className={`w-1.5 bg-emerald-500 rounded-t-full`}
-                style={{
-                  height: `${Math.random() * 10 + 6}px`,
-                  transform: `rotate(${Math.random() * 10 - 5}deg)`,
-                  filter: `brightness(${100 - Math.random() * 15}%)`,
-                  marginLeft: `${i * 0.5}px`
-                }}
-              />
-            ))}
-          </div>
-        </div>
-      ))}
       
       {/* Goat */}
       <motion.div
         className="absolute bottom-2"
         style={{ left: `${position}%` }}
-        animate={{
-          y: isEating ? [0, -3, 0] : 0
-        }}
-        transition={{
-          y: { duration: 0.3, repeat: isEating ? 5 : 0 }
-        }}
       >
         <div className="relative h-12 w-16">
           {/* Body */}
@@ -109,22 +62,22 @@ const GoatAnimation = () => {
           {/* Legs - with walking animation */}
           <motion.div 
             className="absolute bottom-0 left-1 w-1.5 h-3 bg-gray-400 rounded-b-sm"
-            animate={{ rotate: isEating ? 0 : [0, 15, 0, -15, 0] }}
+            animate={{ rotate: [0, 15, 0, -15, 0] }}
             transition={{ duration: 0.5, repeat: Infinity, repeatType: "loop" }}
           ></motion.div>
           <motion.div 
             className="absolute bottom-0 left-3.5 w-1.5 h-3 bg-gray-400 rounded-b-sm"
-            animate={{ rotate: isEating ? 0 : [0, -15, 0, 15, 0] }}
+            animate={{ rotate: [0, -15, 0, 15, 0] }}
             transition={{ duration: 0.5, repeat: Infinity, repeatType: "loop", delay: 0.25 }}
           ></motion.div>
           <motion.div 
             className="absolute bottom-0 left-6 w-1.5 h-3 bg-gray-400 rounded-b-sm"
-            animate={{ rotate: isEating ? 0 : [0, 15, 0, -15, 0] }}
+            animate={{ rotate: [0, 15, 0, -15, 0] }}
             transition={{ duration: 0.5, repeat: Infinity, repeatType: "loop" }}
           ></motion.div>
           <motion.div 
             className="absolute bottom-0 left-8.5 w-1.5 h-3 bg-gray-400 rounded-b-sm"
-            animate={{ rotate: isEating ? 0 : [0, -15, 0, 15, 0] }}
+            animate={{ rotate: [0, -15, 0, 15, 0] }}
             transition={{ duration: 0.5, repeat: Infinity, repeatType: "loop", delay: 0.25 }}
           ></motion.div>
           

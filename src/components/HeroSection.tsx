@@ -44,11 +44,11 @@ const HeroSection = () => {
     }
   }, []);
 
-  // Rotate through hero images
+  // Rotate through hero images - updated to change every 3 seconds (3000ms)
   useEffect(() => {
     const imageInterval = setInterval(() => {
       setCurrentImageIndex(prev => (prev + 1) % heroImages.length);
-    }, 500); // Change image every 500ms
+    }, 3000); // Changed from 500ms to 3000ms (3 seconds)
     
     return () => clearInterval(imageInterval);
   }, []);
