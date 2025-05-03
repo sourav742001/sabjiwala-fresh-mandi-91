@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Trash2, ShoppingBag } from 'lucide-react';
+import { ArrowLeft, Trash2, ShoppingBag, ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
@@ -175,9 +175,27 @@ const Cart = () => {
                     </p>
                   </div>
                   
-                  <Button className="w-full bg-emerald-700 hover:bg-emerald-800">
-                    Proceed to Checkout
+                  <Button 
+                    asChild 
+                    className="w-full bg-emerald-700 hover:bg-emerald-800"
+                  >
+                    <Link to="/checkout" className="flex items-center justify-center">
+                      Checkout
+                      <ArrowRight size={16} className="ml-2" />
+                    </Link>
                   </Button>
+                  
+                  <div className="mt-4">
+                    <Button 
+                      variant="outline" 
+                      asChild 
+                      className="w-full border-emerald-700 text-emerald-700 hover:bg-emerald-50"
+                    >
+                      <Link to="/shop">
+                        Continue Shopping
+                      </Link>
+                    </Button>
+                  </div>
                 </motion.div>
               </div>
             </motion.div>

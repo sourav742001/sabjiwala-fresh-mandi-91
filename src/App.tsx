@@ -15,6 +15,13 @@ import VegetableDetails from "./pages/VegetableDetails";
 import Cart from "./pages/Cart";
 import Categories from "./pages/Categories";
 import About from "./pages/About";
+import Login from "./pages/Login";
+import Signup from "./pages/Signup";
+import Checkout from "./pages/Checkout";
+import Payment from "./pages/Payment";
+import OrderConfirmation from "./pages/OrderConfirmation";
+import TrackOrder from "./pages/TrackOrder";
+import Orders from "./pages/Orders";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { CartProvider } from "./context/CartContext";
 import React from "react";
@@ -80,7 +87,16 @@ const App = () => {
                 <Route path="/cart" element={<Cart />} />
                 <Route path="/categories" element={<Categories />} />
                 <Route path="/about" element={<About />} />
-                {/* Add additional routes here as we build more pages */}
+                {/* Authentication routes */}
+                <Route path="/login" element={<Login />} />
+                <Route path="/signup" element={<Signup />} />
+                {/* Checkout and Order routes */}
+                <Route path="/checkout" element={<Checkout />} />
+                <Route path="/payment" element={<Payment />} />
+                <Route path="/order-confirmation" element={<OrderConfirmation />} />
+                <Route path="/track-order/:orderId" element={<TrackOrder />} />
+                <Route path="/orders" element={<Orders />} />
+                {/* Fallback route */}
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </TooltipProvider>
