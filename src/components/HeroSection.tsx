@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { ArrowRight, Carrot, Basket, LeafyGreen, Apple } from 'lucide-react';
+import { ArrowRight, Carrot, ShoppingBag, LeafyGreen, Apple } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 
@@ -45,7 +45,7 @@ const HeroSection = () => {
   const backgroundItems = [
     { icon: <Carrot size={32} />, top: '15%', left: '10%', delay: 0 },
     { icon: <LeafyGreen size={28} />, top: '60%', left: '5%', delay: 0.5 },
-    { icon: <Basket size={40} />, top: '20%', left: '80%', delay: 1 },
+    { icon: <ShoppingBag size={40} />, top: '20%', left: '80%', delay: 1 },
     { icon: <Apple size={24} />, top: '70%', left: '85%', delay: 1.5 },
     { icon: <LeafyGreen size={36} />, top: '40%', left: '90%', delay: 2 },
   ];
