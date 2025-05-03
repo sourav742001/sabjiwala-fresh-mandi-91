@@ -1,5 +1,5 @@
 
-export interface VegetableImage {
+export interface Image {
   id: number;
   url: string;
   alt: string;
@@ -13,8 +13,8 @@ export interface Vegetable {
   description: string;
   nutritionalInfo: string;
   origin: string;
-  images: VegetableImage[];
+  images: Image[];
   isOrganic: boolean;
   inStock: boolean;
-  category: 'vegetable' | 'fruit' | 'leafy-green' | 'root' | 'exotic';
+  category: string;
 }
