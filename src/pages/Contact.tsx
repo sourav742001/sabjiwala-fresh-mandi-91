@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Phone, Mail, MapPin, Send } from 'lucide-react';
@@ -22,7 +21,7 @@ const contactInfo = [
     icon: <Mail className="h-6 w-6 text-emerald-600" />,
     title: 'Email',
     content: 'info@thesabjiwala.com',
-    detail: 'We'll get back to you within 24 hours'
+    detail: 'We\'ll get back to you within 24 hours'
   },
   {
     icon: <MapPin className="h-6 w-6 text-emerald-600" />,
