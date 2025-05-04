@@ -1,3 +1,4 @@
+
 import { Vegetable } from "../types/vegetable";
 
 export const vegetables: Vegetable[] = [
@@ -1268,3 +1269,38 @@ export const vegetables: Vegetable[] = [
     type: "fruit"
   }
 ]
+
+/**
+ * Get all unique categories from the vegetables data
+ */
+export const getAllCategories = (): string[] => {
+  const categoriesSet = new Set<string>();
+  
+  vegetables.forEach(item => {
+    categoriesSet.add(item.category);
+  });
+  
+  return Array.from(categoriesSet);
+};
+
+/**
+ * Get the minimum and maximum price from all vegetables
+ */
+export const getMinMaxPrice = (): [number, number] => {
+  let min = Number.MAX_VALUE;
+  let max = Number.MIN_VALUE;
+  
+  vegetables.forEach(item => {
+    if (item.price < min) min = item.price;
+    if (item.price > max) max = item.price;
+  });
+  
+  return [min, max];
+};
+
+/**
+ * Find a vegetable by its ID
+ */
+export const getVegetableById = (id: number): Vegetable | undefined => {
+  return vegetables.find(item => item.id === id);
+};
