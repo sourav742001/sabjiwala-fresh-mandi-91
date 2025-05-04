@@ -5,16 +5,17 @@ import { Link } from 'react-router-dom';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { Filter, ArrowRight, ShoppingCart, Plus, Minus, ArrowUpZA, ArrowDownZA, ArrowUpAZ, ArrowDownAZ } from 'lucide-react';
-import { vegetables, getAllCategories, getMinMaxPrice } from '@/data/vegetables';
+import { vegetables } from '@/data/vegetables';
 import { useCart } from '@/context/CartContext';
 import { Button } from '@/components/ui/button';
-import { Vegetable, SortOption, FilterOptions } from '@/types/vegetable';
+import { Vegetable, SortOption, FilterOptions, getAllCategories, getMinMaxPrice } from '@/types/vegetable';
 import { Slider } from '@/components/ui/slider';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import ProductImageSlider from '@/components/ProductImageSlider';
 
 const Shop = () => {
   const [visibleCount, setVisibleCount] = useState(12);
@@ -22,14 +23,14 @@ const Shop = () => {
   const [filterOptions, setFilterOptions] = useState<FilterOptions>({
     categories: [],
     organic: false,
-    priceRange: getMinMaxPrice(),
+    priceRange: getMinMaxPrice(vegetables),
     type: null
   });
   const [filteredItems, setFilteredItems] = useState<Vegetable[]>(vegetables);
   const [displayedItems, setDisplayedItems] = useState<Vegetable[]>([]);
   const { addToCart } = useCart();
-  const categories = getAllCategories();
-  const [priceRange, setPriceRange] = useState<[number, number]>(getMinMaxPrice());
+  const categories = getAllCategories(vegetables);
+  const [priceRange, setPriceRange] = useState<[number, number]>(getMinMaxPrice(vegetables));
 
   // Apply filters and sort
   useEffect(() => {
@@ -114,10 +115,10 @@ const Shop = () => {
     setFilterOptions({
       categories: [],
       organic: false,
-      priceRange: getMinMaxPrice(),
+      priceRange: getMinMaxPrice(vegetables),
       type: null
     });
-    setPriceRange(getMinMaxPrice());
+    setPriceRange(getMinMaxPrice(vegetables));
     setSortOption('featured');
   };
 
@@ -137,7 +138,7 @@ const Shop = () => {
   return (
     <div className="min-h-screen flex flex-col bg-white">
       <Header />
-      <main className="flex-grow">
+      <main className="flex-grow mt-20">
         {/* Hero Banner */}
         <motion.section 
           initial={{ opacity: 0 }}
@@ -265,8 +266,8 @@ const Shop = () => {
                       <Slider
                         defaultValue={[priceRange[0], priceRange[1]]}
                         value={[priceRange[0], priceRange[1]]}
-                        min={getMinMaxPrice()[0]}
-                        max={getMinMaxPrice()[1]}
+                        min={getMinMaxPrice(vegetables)[0]}
+                        max={getMinMaxPrice(vegetables)[1]}
                         step={10}
                         onValueChange={handlePriceChange}
                         className="mb-2"
@@ -438,14 +439,8 @@ const VegetableCard = ({
       className="border border-gray-100 rounded-lg group overflow-hidden"
     >
       <Link to={`/vegetable/${vegetable.id}`} className="block">
-        <div className="w-full h-64 overflow-hidden bg-emerald-50">
-          <motion.img 
-            src={vegetable.images[0].url}
-            alt={vegetable.images[0].alt}
-            className="w-full h-full object-cover transition-transform"
-            whileHover={{ scale: 1.05 }}
-            transition={{ duration: 0.5 }}
-          />
+        <div className="w-full h-64 overflow-hidden">
+          <ProductImageSlider images={vegetable.images} />
         </div>
         
         <div className="p-6 border-t border-gray-100">
