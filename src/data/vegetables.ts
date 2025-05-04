@@ -1252,4 +1252,19 @@ export const vegetables: Vegetable[] = [
     name: "Organic Kiwi",
     price: 140,
     unit: "kg",
-    description: "Tangy-sweet kiwi with
+    description: "Tangy-sweet kiwi with bright green flesh and tiny black seeds. Perfect for eating fresh, adding to fruit salads, or using in smoothies.",
+    nutritionalInfo: "Excellent source of vitamin C, vitamin K, vitamin E, folate, and potassium.",
+    origin: "Organic imported",
+    images: [
+      {
+        id: 1,
+        url: "https://images.unsplash.com/photo-1618897996318-5a901fa6ca71?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80",
+        alt: "Fresh organic kiwi"
+      }
+    ],
+    isOrganic: true,
+    inStock: true,
+    category: "fruit",
+    type: "fruit"
+  }
+]
