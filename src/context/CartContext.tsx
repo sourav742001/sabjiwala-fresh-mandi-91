@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { Vegetable } from '@/types/vegetable';
 import { useToast } from '@/hooks/use-toast';
@@ -15,6 +16,9 @@ type CartContextType = {
   updateQuantity: (vegetableId: number, quantity: number) => void;
   clearCart: () => void;
   calculateTotalPrice: () => number;
+  // Add these properties to fix the TypeScript errors
+  cartItems: CartItem[];
+  cartTotal: number;
 };
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
@@ -37,6 +41,8 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, [cart]);
 
   const cartCount = cart.reduce((total, item) => total + item.quantity, 0);
+  // Calculate total price for the cart
+  const cartTotal = cart.reduce((total, item) => total + (item.vegetable.price * item.quantity), 0);
 
   const addToCart = (vegetable: Vegetable, quantity: number) => {
     setCart(prevCart => {
@@ -121,7 +127,10 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
       removeFromCart, 
       updateQuantity, 
       clearCart,
-      calculateTotalPrice 
+      calculateTotalPrice,
+      // Add these to match the type definition
+      cartItems: cart,
+      cartTotal
     }}>
       {children}
     </CartContext.Provider>
