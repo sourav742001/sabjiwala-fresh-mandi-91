@@ -4,9 +4,8 @@ import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
-import { Filter, ArrowRight, ShoppingCart, Plus, Minus, ArrowUpZA, ArrowDownZA, ArrowUpAZ, ArrowDownAZ } from 'lucide-react';
+import { Filter, ArrowRight, ArrowUpZA, ArrowDownZA, ArrowUpAZ, ArrowDownAZ } from 'lucide-react';
 import { vegetables, getAllCategories, getMinMaxPrice } from '@/data/vegetables';
-import { useCart } from '@/context/CartContext';
 import { Button } from '@/components/ui/button';
 import { Vegetable, SortOption, FilterOptions } from '@/types/vegetable';
 import { Slider } from '@/components/ui/slider';
@@ -15,6 +14,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import VegetableCard from '@/components/VegetableCard';
 
 const Shop = () => {
   const [visibleCount, setVisibleCount] = useState(12);
@@ -27,7 +27,6 @@ const Shop = () => {
   });
   const [filteredItems, setFilteredItems] = useState<Vegetable[]>(vegetables);
   const [displayedItems, setDisplayedItems] = useState<Vegetable[]>([]);
-  const { addToCart } = useCart();
   const categories = getAllCategories();
   const [priceRange, setPriceRange] = useState<[number, number]>(getMinMaxPrice());
 
@@ -367,11 +366,7 @@ const Shop = () => {
                       className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
                     >
                       {displayedItems.map((vegetable) => (
-                        <VegetableCard 
-                          key={vegetable.id} 
-                          vegetable={vegetable} 
-                          addToCart={addToCart}
-                        />
+                        <VegetableCard key={vegetable.id} vegetable={vegetable} />
                       ))}
                     </motion.div>
                     
@@ -400,107 +395,6 @@ const Shop = () => {
       </main>
       <Footer />
     </div>
-  );
-};
-
-// Vegetable Card component
-const VegetableCard = ({ 
-  vegetable, 
-  addToCart 
-}: { 
-  vegetable: Vegetable; 
-  addToCart: (item: Vegetable, quantity: number) => void;
-}) => {
-  const [quantity, setQuantity] = useState(1);
-
-  const handleIncrement = () => {
-    setQuantity(prev => prev + 1);
-  };
-
-  const handleDecrement = () => {
-    if (quantity > 1) {
-      setQuantity(prev => prev - 1);
-    }
-  };
-
-  const handleAddToCart = (e: React.MouseEvent) => {
-    e.preventDefault();
-    addToCart(vegetable, quantity);
-  };
-
-  return (
-    <motion.div
-      variants={{
-        hidden: { opacity: 0, y: 20 },
-        visible: { opacity: 1, y: 0 }
-      }}
-      whileHover={{ y: -10 }}
-      className="border border-gray-100 rounded-lg group overflow-hidden"
-    >
-      <Link to={`/vegetable/${vegetable.id}`} className="block">
-        <div className="w-full h-64 overflow-hidden bg-emerald-50">
-          <motion.img 
-            src={vegetable.images[0].url}
-            alt={vegetable.images[0].alt}
-            className="w-full h-full object-cover transition-transform"
-            whileHover={{ scale: 1.05 }}
-            transition={{ duration: 0.5 }}
-          />
-        </div>
-        
-        <div className="p-6 border-t border-gray-100">
-          <div className="flex justify-between items-start mb-2">
-            <h3 className="text-lg font-light text-gray-800">{vegetable.name}</h3>
-            <div className="flex flex-col gap-1">
-              {vegetable.isOrganic && (
-                <span className="bg-emerald-50 text-emerald-700 text-xs px-2 py-1 rounded-full">Organic</span>
-              )}
-              <span className="bg-gray-100 text-gray-700 text-xs px-2 py-1 rounded-full capitalize">
-                {vegetable.type}
-              </span>
-            </div>
-          </div>
-          
-          <div className="mb-4">
-            <span className="text-lg font-medium text-emerald-700">
-              ₹{vegetable.price}/{vegetable.unit}
-            </span>
-          </div>
-        </div>
-      </Link>
-      
-      <div className="px-6 pb-6">
-        <div className="flex items-center justify-between mb-3">
-          <div className="flex items-center border border-gray-200 rounded-md">
-            <Button 
-              variant="ghost" 
-              size="icon"
-              className="h-8 w-8 p-0"
-              onClick={handleDecrement}
-              disabled={quantity <= 1}
-            >
-              <Minus size={16} />
-            </Button>
-            <span className="w-8 text-center">{quantity}</span>
-            <Button 
-              variant="ghost" 
-              size="icon"
-              className="h-8 w-8 p-0"
-              onClick={handleIncrement}
-            >
-              <Plus size={16} />
-            </Button>
-          </div>
-          <Button 
-            onClick={handleAddToCart}
-            className="bg-emerald-700 text-white flex items-center justify-center gap-2 hover:bg-emerald-800 transition-colors rounded-md"
-          >
-            <ShoppingCart size={16} />
-            Add to Cart
-          </Button>
-        </div>
-      </div>
-    </motion.div>
   );
 };
 

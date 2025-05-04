@@ -3,17 +3,15 @@ import { motion } from 'framer-motion';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { vegetables } from '@/data/vegetables';
-import { Vegetable } from '@/types/vegetable';
 import { Link } from 'react-router-dom';
-import { useCart } from '@/context/CartContext';
 import { Button } from '@/components/ui/button';
 import { ShoppingCart, LeafyGreen, Carrot } from 'lucide-react';
-import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import VegetableCard from '@/components/VegetableCard';
 
 const Categories = () => {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedFilters, setSelectedFilters] = useState<string[]>([]);
-  const { addToCart } = useCart();
 
   const categories = [
     { value: 'vegetable', label: 'Vegetables' },
@@ -28,7 +26,7 @@ const Categories = () => {
     { value: 'indian', label: 'Indian Grown', icon: null },
     { value: 'seasonal', label: 'Seasonal', icon: null },
     { value: 'root', label: 'Root Vegetables', icon: Carrot },
-    { value: 'exotic', label: 'Exotic', icon: null }, // Removed the Zucchini icon as it's not available
+    { value: 'exotic', label: 'Exotic', icon: null },
   ];
 
   // Filter vegetables based on selected category and filters
@@ -75,11 +73,6 @@ const Categories = () => {
         staggerChildren: 0.1
       }
     }
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.6 } }
   };
 
   return (
@@ -239,8 +232,7 @@ const Categories = () => {
                   {filteredVegetables.map((vegetable) => (
                     <VegetableCard 
                       key={vegetable.id} 
-                      vegetable={vegetable} 
-                      addToCart={addToCart}
+                      vegetable={vegetable}
                     />
                   ))}
                 </motion.div>
@@ -251,63 +243,6 @@ const Categories = () => {
       </main>
       <Footer />
     </div>
-  );
-};
-
-// Vegetable Card component
-const VegetableCard = ({ 
-  vegetable, 
-  addToCart 
-}: { 
-  vegetable: Vegetable; 
-  addToCart: (item: Vegetable, quantity: number) => void;
-}) => {
-  return (
-    <motion.div
-      variants={{
-        hidden: { opacity: 0, y: 20 },
-        visible: { opacity: 1, y: 0 }
-      }}
-      whileHover={{ y: -10 }}
-      className="border border-gray-100 group"
-    >
-      <Link to={`/vegetable/${vegetable.id}`} className="block">
-        <div className="w-full h-64 overflow-hidden bg-emerald-50">
-          <motion.img 
-            src={vegetable.images[0].url}
-            alt={vegetable.images[0].alt}
-            className="w-full h-full object-cover transition-transform"
-            whileHover={{ scale: 1.05 }}
-            transition={{ duration: 0.5 }}
-          />
-        </div>
-        
-        <div className="p-6 border-t border-gray-100">
-          <div className="flex justify-between items-start mb-2">
-            <h3 className="text-lg font-light text-gray-800">{vegetable.name}</h3>
-            {vegetable.isOrganic && (
-              <span className="bg-emerald-50 text-emerald-700 text-xs px-2 py-1 rounded-sm">Organic</span>
-            )}
-          </div>
-          
-          <div className="mb-4">
-            <span className="text-lg font-medium text-emerald-700">
-              ₹{vegetable.price}/{vegetable.unit}
-            </span>
-          </div>
-        </div>
-      </Link>
-      
-      <div className="px-6 pb-6">
-        <Button 
-          onClick={() => addToCart(vegetable, 1)}
-          className="w-full py-2 bg-emerald-700 text-white flex items-center justify-center gap-2 hover:bg-emerald-800 transition-colors rounded-sm"
-        >
-          <ShoppingCart size={16} />
-          Add to Cart
-        </Button>
-      </div>
-    </motion.div>
   );
 };
 

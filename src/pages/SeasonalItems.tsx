@@ -8,6 +8,7 @@ import { useCart } from '@/context/CartContext';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { Leaf, Star, ArrowRight } from 'lucide-react';
+import { Vegetable } from '@/types/vegetable';
 
 const seasonalItems = [
   {
@@ -98,11 +99,10 @@ const SeasonalItems = () => {
 
   const handleAddToCart = (item: any) => {
     // Create a vegetable object with proper structure that matches the Vegetable type
-    const vegetableItem = {
+    const vegetableItem: Vegetable = {
       id: item.id,
       name: item.name,
       price: item.price,
-      // Use images array structure instead of single image property
       images: [
         {
           id: 1,
@@ -110,14 +110,14 @@ const SeasonalItems = () => {
           alt: item.name
         }
       ],
-      // Add other required properties from Vegetable type
       description: item.description || "",
       nutritionalInfo: "",
       origin: item.origin || "",
       isOrganic: false,
       inStock: true,
       category: "seasonal",
-      unit: item.unit || "kg"
+      unit: item.unit || "kg",
+      type: "fruit", // Adding the type property that was missing
     };
     
     // Pass the vegetable object and quantity as separate parameters

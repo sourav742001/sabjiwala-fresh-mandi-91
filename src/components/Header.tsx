@@ -1,8 +1,10 @@
+
 import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { ShoppingCart, User, Search, Menu, X } from 'lucide-react';
+import { ShoppingCart, User, Search, Menu, X, Heart, Book } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useCart } from '@/context/CartContext';
+import { useFavorites } from '@/context/FavoritesContext';
 import DevelopmentModeBanner from './DevelopmentModeBanner';
 
 const Header = () => {
@@ -12,11 +14,13 @@ const Header = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { cartCount } = useCart();
+  const { favorites } = useFavorites();
   
   const navLinks = [
     { name: 'Home', path: '/' },
     { name: 'Shop', path: '/shop' },
     { name: 'Categories', path: '/categories' },
+    { name: 'Recipes', path: '/recipes' },
     { name: 'About', path: '/about' },
     { name: 'Contact', path: '/contact' },
   ];
@@ -83,6 +87,16 @@ const Header = () => {
               >
                 <Search size={18} className="text-gray-600" />
               </motion.button>
+              <motion.div whileHover={{ scale: 1.1 }}>
+                <Link to="/favorites" className="p-2 hover:bg-emerald-50 rounded-full transition-colors relative">
+                  <Heart size={18} className="text-gray-600" />
+                  {favorites.length > 0 && (
+                    <span className="absolute -top-1 -right-1 bg-emerald-700 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                      {favorites.length}
+                    </span>
+                  )}
+                </Link>
+              </motion.div>
               <motion.div whileHover={{ scale: 1.1 }}>
                 <Link to="/profile" className="p-2 hover:bg-emerald-50 rounded-full transition-colors">
                   <User size={18} className="text-gray-600" />
@@ -198,6 +212,10 @@ const Header = () => {
                 ))}
               </nav>
               <div className="flex items-center space-x-6 mt-6">
+                <Link to="/favorites" className="flex items-center space-x-1" onClick={() => setIsMenuOpen(false)}>
+                  <Heart size={16} className="text-gray-600" />
+                  <span className="text-sm">Favorites ({favorites.length})</span>
+                </Link>
                 <Link to="/profile" className="flex items-center space-x-1" onClick={() => setIsMenuOpen(false)}>
                   <User size={16} className="text-gray-600" />
                   <span className="text-sm">Profile</span>

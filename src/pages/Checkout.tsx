@@ -1,666 +1,529 @@
 
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useEffect, useState, useRef } from 'react';
 import { motion } from 'framer-motion';
-import { z } from 'zod';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Separator } from "@/components/ui/separator";
-import { useToast } from "@/hooks/use-toast";
-import { useCart } from '@/context/CartContext';
+import { Check, MapPin, CreditCard, Truck, Clock, X } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
-import { MapPin, CreditCard, Truck, Tag, Map, Scissors, ArrowRight } from 'lucide-react';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
-import { Progress } from "@/components/ui/progress";
-import { Link } from 'react-router-dom';
-import CheckoutLocationMap from '@/components/CheckoutLocationMap';
+import { useCart } from '@/context/CartContext';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Separator } from '@/components/ui/separator';
+import { Card, CardContent } from '@/components/ui/card';
+import { Textarea } from '@/components/ui/textarea';
+import { useToast } from '@/hooks/use-toast';
+import mapboxgl from 'mapbox-gl';
+import 'mapbox-gl/dist/mapbox-gl.css';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
-// Form validation schema
-const addressSchema = z.object({
-  fullName: z.string().min(2, { message: "Full name is required" }),
-  phone: z.string().min(10, { message: "Please enter a valid phone number" }),
-  address: z.string().min(5, { message: "Address is required" }),
-  city: z.string().min(2, { message: "City is required" }),
-  state: z.string().min(2, { message: "State is required" }),
-  pincode: z.string().min(6, { message: "Please enter a valid pincode" }),
-  paymentMethod: z.enum(["card", "cash"], {
-    required_error: "Please select a payment method",
-  }),
-  saveAddress: z.boolean().default(false),
-});
-
-const availableCoupons = [
-  { code: "FIRST20", discount: 20, type: "percentage", minOrder: 500 },
-  { code: "FLAT100", discount: 100, type: "fixed", minOrder: 800 },
-  { code: "FREESHIP", discount: 40, type: "shipping", minOrder: 300 }
-];
+// Define a shipping slot type
+interface ShippingSlot {
+  id: string;
+  time: string;
+  day: string;
+  available: boolean;
+}
 
 const Checkout = () => {
   const navigate = useNavigate();
-  const { cartItems, cartTotal } = useCart();
-  const [isLoading, setIsLoading] = useState(false);
-  const [mapDialogOpen, setMapDialogOpen] = useState(false);
-  const [selectedLocation, setSelectedLocation] = useState({ lat: 19.0760, lng: 72.8777, address: "Mumbai, Maharashtra" });
-  const { toast } = useToast();
-  const [couponCode, setCouponCode] = useState("");
-  const [appliedCoupon, setAppliedCoupon] = useState<any>(null);
-  const [showCouponsList, setShowCouponsList] = useState(false);
-  const [isCardProcessing, setIsCardProcessing] = useState(false);
-
-  useEffect(() => {
-    // Check if user is logged in
-    const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
-    if (!isLoggedIn) {
-      toast({
-        title: "Please login",
-        description: "You need to login to proceed with checkout",
-        variant: "destructive",
-      });
-      navigate("/login", { state: { returnUrl: "/checkout" } });
-      return;
-    }
-
-    // Check if cart is empty
-    if (cartItems.length === 0) {
-      toast({
-        title: "Empty cart",
-        description: "Your cart is empty",
-        variant: "destructive",
-      });
-      navigate("/shop");
-    }
-  }, [cartItems.length, navigate, toast]);
-
-  const form = useForm<z.infer<typeof addressSchema>>({
-    resolver: zodResolver(addressSchema),
-    defaultValues: {
-      fullName: "",
-      phone: "",
-      address: "",
-      city: "",
-      state: "",
-      pincode: "",
-      paymentMethod: "card",
-      saveAddress: false,
-    },
+  const { cart, calculateTotalPrice } = useCart();
+  const [isMapDialogOpen, setIsMapDialogOpen] = useState(false);
+  const mapRef = useRef<HTMLDivElement>(null);
+  const mapInstanceRef = useRef<mapboxgl.Map | null>(null);
+  const markerRef = useRef<mapboxgl.Marker | null>(null);
+  const [customerLocation, setCustomerLocation] = useState<[number, number] | null>(null);
+  const [deliveryAddress, setDeliveryAddress] = useState('');
+  const [paymentMethod, setPaymentMethod] = useState('cash');
+  const [shippingMethod, setShippingMethod] = useState('standard');
+  const [selectedSlot, setSelectedSlot] = useState<string | null>(null);
+  const [customerDetails, setCustomerDetails] = useState({
+    firstName: '',
+    lastName: '',
+    email: '',
+    phone: '',
+    address: '',
+    city: 'Delhi',
+    state: 'Delhi',
+    pincode: '',
+    notes: ''
   });
+  const { toast } = useToast();
+  
+  // Shipping time slots
+  const shippingSlots: ShippingSlot[] = [
+    { id: 'morning-today', time: '9 AM - 12 PM', day: 'Today', available: true },
+    { id: 'afternoon-today', time: '1 PM - 4 PM', day: 'Today', available: false },
+    { id: 'evening-today', time: '5 PM - 8 PM', day: 'Today', available: true },
+    { id: 'morning-tomorrow', time: '9 AM - 12 PM', day: 'Tomorrow', available: true },
+    { id: 'afternoon-tomorrow', time: '1 PM - 4 PM', day: 'Tomorrow', available: true },
+    { id: 'evening-tomorrow', time: '5 PM - 8 PM', day: 'Tomorrow', available: true },
+  ];
+  
+  // Calculate subtotal
+  const subtotal = calculateTotalPrice();
+  
+  // Calculate delivery fee based on shipping method
+  const deliveryFee = shippingMethod === 'express' ? 60 : 30;
+  
+  // Calculate total
+  const total = subtotal + deliveryFee;
 
-  // Update address field when location is selected
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setCustomerDetails(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+  
+  const handleMapModalOpen = () => {
+    setIsMapDialogOpen(true);
+  };
+
+  const handleMapModalClose = () => {
+    setIsMapDialogOpen(false);
+  };
+  
+  // Initialize map when modal is opened
   useEffect(() => {
-    if (selectedLocation?.address) {
-      form.setValue("address", selectedLocation.address);
-    }
-  }, [selectedLocation, form]);
-
-  // Process Stripe payment
-  const processStripePayment = async () => {
-    setIsCardProcessing(true);
+    if (!isMapDialogOpen || !mapRef.current) return;
     
-    try {
-      // Simulate a Stripe payment process
-      await new Promise(resolve => setTimeout(resolve, 1500));
+    mapboxgl.accessToken = 'pk.eyJ1IjoiYW1pdHNpbmdoMjAyMyIsImEiOiJjbGdlN2RidnAwNzVxM2dxbjVlbGNuazdzIn0.Uz5taxJmHj7I2l5R8SH4iQ';
+    
+    const map = new mapboxgl.Map({
+      container: mapRef.current,
+      style: 'mapbox://styles/mapbox/streets-v12',
+      center: customerLocation || [77.1025, 28.7041], // Default to Delhi
+      zoom: 12
+    });
+    
+    // Add navigation controls
+    map.addControl(new mapboxgl.NavigationControl());
+    
+    // Add a marker that can be dragged
+    const marker = new mapboxgl.Marker({ draggable: true })
+      .setLngLat(customerLocation || [77.1025, 28.7041])
+      .addTo(map);
+    
+    // Get address when marker is dragged
+    marker.on('dragend', async () => {
+      const lngLat = marker.getLngLat();
+      setCustomerLocation([lngLat.lng, lngLat.lat]);
       
-      // Store checkout data
-      const checkoutData = {
-        ...form.getValues(),
-        appliedCoupon,
-        paymentSuccess: true
-      };
-      
-      sessionStorage.setItem('checkoutData', JSON.stringify(checkoutData));
-      
-      navigate("/order-confirmation", { 
-        state: { 
-          paymentMethod: "Credit Card",
-          orderId: `ORD-${Math.floor(Math.random() * 1000000)}`,
-          appliedCoupon: appliedCoupon
-        } 
-      });
-    } catch (error) {
-      toast({
-        title: "Payment failed",
-        description: "There was an error processing your payment. Please try again.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsCardProcessing(false);
-    }
-  };
-
-  function onSubmit(values: z.infer<typeof addressSchema>) {
-    setIsLoading(true);
-    console.log("Form values:", values);
-
-    // Store checkout data for the next step
-    const checkoutData = {
-      ...values,
-      appliedCoupon: appliedCoupon
+      try {
+        // Try to reverse geocode the location
+        const response = await fetch(
+          `https://api.mapbox.com/geocoding/v5/mapbox.places/${lngLat.lng},${lngLat.lat}.json?access_token=${mapboxgl.accessToken}`
+        );
+        
+        const data = await response.json();
+        if (data?.features?.length > 0) {
+          setDeliveryAddress(data.features[0].place_name);
+          setCustomerDetails(prev => ({
+            ...prev,
+            address: data.features[0].place_name
+          }));
+        }
+      } catch (error) {
+        console.error('Error fetching address:', error);
+      }
+    });
+    
+    mapInstanceRef.current = map;
+    markerRef.current = marker;
+    
+    // Cleanup function
+    return () => {
+      map.remove();
     };
-    sessionStorage.setItem('checkoutData', JSON.stringify(checkoutData));
-    
-    // If card payment, process with Stripe, otherwise go to confirmation
-    if (values.paymentMethod === "card") {
-      processStripePayment();
-    } else {
-      navigate("/order-confirmation", { 
-        state: { 
-          paymentMethod: "Cash on Delivery",
-          orderId: `ORD-${Math.floor(Math.random() * 1000000)}`,
-          appliedCoupon: appliedCoupon
-        } 
-      });
+  }, [isMapDialogOpen, customerLocation]);
+  
+  const handleSlotSelect = (slotId: string) => {
+    const slot = shippingSlots.find(s => s.id === slotId);
+    if (slot && slot.available) {
+      setSelectedSlot(slotId);
     }
-    
-    setIsLoading(false);
-  }
-
-  const handleOpenMap = () => {
-    setMapDialogOpen(true);
   };
-
-  const handleSelectLocation = (location: any) => {
-    setSelectedLocation(location);
-    setMapDialogOpen(false);
+  
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
     
-    // Update the form field
-    form.setValue("address", location.address);
-    toast({
-      title: "Location selected",
-      description: `${location.address} has been set as your delivery address`,
-    });
-  };
-
-  const handleApplyCoupon = () => {
-    const foundCoupon = availableCoupons.find(c => c.code === couponCode.toUpperCase());
-    if (!foundCoupon) {
+    // Validate form
+    if (!customerDetails.firstName || !customerDetails.email || !customerDetails.phone || !customerDetails.address || !customerDetails.pincode) {
       toast({
-        title: "Invalid coupon",
-        description: "The coupon code you entered is invalid",
-        variant: "destructive",
+        title: "Missing information",
+        description: "Please fill in all required fields.",
+        variant: "destructive"
       });
       return;
     }
-
-    if (cartTotal < foundCoupon.minOrder) {
+    
+    if (!selectedSlot) {
       toast({
-        title: "Minimum order value not met",
-        description: `This coupon requires a minimum order of ₹${foundCoupon.minOrder}`,
-        variant: "destructive",
+        title: "Delivery time not selected",
+        description: "Please select a delivery time slot.",
+        variant: "destructive"
       });
       return;
     }
-
-    setAppliedCoupon(foundCoupon);
-    toast({
-      title: "Coupon applied",
-      description: `${foundCoupon.code} has been applied to your order`,
-      variant: "default", 
-    });
-  };
-
-  const handleRemoveCoupon = () => {
-    setAppliedCoupon(null);
-    setCouponCode("");
-    toast({
-      title: "Coupon removed",
-      description: "Coupon has been removed from your order",
-    });
-  };
-
-  // Calculate discount amount
-  const calculateDiscount = () => {
-    if (!appliedCoupon) return 0;
     
-    if (appliedCoupon.type === "percentage") {
-      return Math.min((cartTotal * appliedCoupon.discount) / 100, 500); // Cap at 500
-    } else if (appliedCoupon.type === "fixed") {
-      return appliedCoupon.discount;
-    } else if (appliedCoupon.type === "shipping") {
-      return 40; // Free shipping
+    // Proceed to payment
+    navigate('/payment', { 
+      state: { 
+        customerDetails,
+        selectedSlot,
+        paymentMethod,
+        shippingMethod,
+        deliveryFee,
+        subtotal,
+        total
+      } 
+    });
+  };
+  
+  // If cart is empty, redirect to cart page
+  useEffect(() => {
+    if (cart.length === 0) {
+      navigate('/cart');
     }
-    
-    return 0;
-  };
-
-  const discount = calculateDiscount();
-  const deliveryFee = appliedCoupon?.type === "shipping" ? 0 : (cartTotal >= 200 ? 0 : 40);
-  const totalAmount = cartTotal + deliveryFee - discount;
-
+  }, [cart, navigate]);
+  
   return (
     <div className="min-h-screen flex flex-col bg-white">
       <Header />
-      <main className="flex-grow py-8 md:py-12">
-        <div className="container-custom">
-          <motion.h1 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="text-3xl md:text-4xl font-light text-gray-900 mb-8"
-          >
-            Checkout
-          </motion.h1>
+      <div className="flex-grow">
+        <div className="container-custom py-12">
+          <div className="mb-8">
+            <h1 className="text-3xl font-medium text-gray-900 mb-2">Checkout</h1>
+            <div className="flex items-center space-x-6">
+              <div className="flex items-center text-emerald-700">
+                <div className="bg-emerald-700 w-6 h-6 rounded-full flex items-center justify-center text-white mr-2">
+                  <Check size={14} />
+                </div>
+                <span>Cart</span>
+              </div>
+              <div className="h-0.5 w-8 bg-emerald-700"></div>
+              <div className="flex items-center text-emerald-700 font-medium">
+                <div className="bg-emerald-700 w-6 h-6 rounded-full flex items-center justify-center text-white mr-2">
+                  2
+                </div>
+                <span>Checkout</span>
+              </div>
+              <div className="h-0.5 w-8 bg-gray-300"></div>
+              <div className="flex items-center text-gray-400">
+                <div className="bg-gray-200 w-6 h-6 rounded-full flex items-center justify-center text-gray-500 mr-2">
+                  3
+                </div>
+                <span>Payment</span>
+              </div>
+            </div>
+          </div>
           
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <motion.div 
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              className="lg:col-span-2"
-            >
-              <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-                  <div className="bg-white p-6 border border-gray-100 rounded-md shadow-sm">
-                    <div className="flex items-center gap-3 mb-6">
-                      <MapPin className="text-emerald-700" />
-                      <h2 className="text-xl font-medium">Delivery Address</h2>
+          <form onSubmit={handleSubmit}>
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+              {/* Left Side - Form */}
+              <div className="lg:col-span-8">
+                {/* Customer Details */}
+                <Card className="mb-6">
+                  <CardContent className="pt-6">
+                    <h2 className="text-xl font-medium mb-4">Customer Details</h2>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                      <div>
+                        <Label htmlFor="firstName" className="text-gray-700">First Name*</Label>
+                        <Input 
+                          id="firstName" 
+                          name="firstName"
+                          value={customerDetails.firstName}
+                          onChange={handleInputChange}
+                          className="mt-1"
+                          required
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="lastName" className="text-gray-700">Last Name</Label>
+                        <Input 
+                          id="lastName" 
+                          name="lastName"
+                          value={customerDetails.lastName}
+                          onChange={handleInputChange}
+                          className="mt-1"
+                        />
+                      </div>
                     </div>
                     
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <FormField
-                        control={form.control}
-                        name="fullName"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Full Name</FormLabel>
-                            <FormControl>
-                              <Input placeholder="John Doe" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      
-                      <FormField
-                        control={form.control}
-                        name="phone"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Phone Number</FormLabel>
-                            <FormControl>
-                              <Input placeholder="9876543210" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      
-                      <div className="md:col-span-2">
-                        <FormField
-                          control={form.control}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                      <div>
+                        <Label htmlFor="email" className="text-gray-700">Email*</Label>
+                        <Input 
+                          id="email" 
+                          name="email"
+                          type="email"
+                          value={customerDetails.email}
+                          onChange={handleInputChange}
+                          className="mt-1"
+                          required
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="phone" className="text-gray-700">Phone Number*</Label>
+                        <Input 
+                          id="phone" 
+                          name="phone"
+                          value={customerDetails.phone}
+                          onChange={handleInputChange}
+                          className="mt-1"
+                          required
+                        />
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+                
+                {/* Shipping Address */}
+                <Card className="mb-6">
+                  <CardContent className="pt-6">
+                    <h2 className="text-xl font-medium mb-4">Shipping Address</h2>
+                    
+                    <div className="mb-4">
+                      <Label htmlFor="address" className="text-gray-700">Address*</Label>
+                      <div className="flex items-center mt-1">
+                        <Input 
+                          id="address" 
                           name="address"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Address</FormLabel>
-                              <div className="relative">
-                                <FormControl>
-                                  <Input placeholder="123 Main St, Apartment 4B" {...field} />
-                                </FormControl>
-                                <Button 
-                                  type="button" 
-                                  variant="outline" 
-                                  size="sm"
-                                  className="absolute right-1 top-1 text-xs h-8 border-emerald-600 text-emerald-700"
-                                  onClick={handleOpenMap}
-                                >
-                                  <Map size={14} className="mr-1" />
-                                  Select on Map
-                                </Button>
-                              </div>
-                              <FormMessage />
-                            </FormItem>
-                          )}
+                          value={customerDetails.address}
+                          onChange={handleInputChange}
+                          className="flex-1"
+                          required
+                          readOnly={!!customerLocation}
+                        />
+                        <Button 
+                          type="button"
+                          variant="outline" 
+                          onClick={handleMapModalOpen}
+                          className="ml-2 whitespace-nowrap"
+                        >
+                          <MapPin className="mr-1 h-4 w-4" /> Select on Map
+                        </Button>
+                      </div>
+                    </div>
+                    
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+                      <div className="col-span-2">
+                        <Label htmlFor="city" className="text-gray-700">City*</Label>
+                        <Input 
+                          id="city" 
+                          name="city"
+                          value={customerDetails.city}
+                          onChange={handleInputChange}
+                          className="mt-1"
+                          required
                         />
                       </div>
-                      
-                      <FormField
-                        control={form.control}
-                        name="city"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>City</FormLabel>
-                            <FormControl>
-                              <Input placeholder="Mumbai" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      
-                      <FormField
-                        control={form.control}
-                        name="state"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>State</FormLabel>
-                            <FormControl>
-                              <Input placeholder="Maharashtra" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      
-                      <FormField
-                        control={form.control}
-                        name="pincode"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Pincode</FormLabel>
-                            <FormControl>
-                              <Input placeholder="400001" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      
-                      <div className="md:col-span-2">
-                        <FormField
-                          control={form.control}
-                          name="saveAddress"
-                          render={({ field }) => (
-                            <FormItem className="flex flex-row items-start space-x-3 space-y-0 pt-2">
-                              <FormControl>
-                                <Checkbox
-                                  checked={field.value}
-                                  onCheckedChange={field.onChange}
-                                />
-                              </FormControl>
-                              <div className="space-y-1 leading-none">
-                                <FormLabel>
-                                  Save this address for future orders
-                                </FormLabel>
-                              </div>
-                            </FormItem>
-                          )}
+                      <div>
+                        <Label htmlFor="state" className="text-gray-700">State*</Label>
+                        <Input 
+                          id="state" 
+                          name="state"
+                          value={customerDetails.state}
+                          onChange={handleInputChange}
+                          className="mt-1"
+                          readOnly
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="pincode" className="text-gray-700">PIN Code*</Label>
+                        <Input 
+                          id="pincode" 
+                          name="pincode"
+                          value={customerDetails.pincode}
+                          onChange={handleInputChange}
+                          className="mt-1"
+                          required
                         />
                       </div>
                     </div>
-                  </div>
-
-                  <div className="bg-white p-6 border border-gray-100 rounded-md shadow-sm">
-                    <div className="flex items-center gap-3 mb-6">
-                      <Tag className="text-emerald-700" />
-                      <h2 className="text-xl font-medium">Apply Coupon</h2>
-                    </div>
                     
-                    {appliedCoupon ? (
-                      <div className="bg-emerald-50 p-4 rounded-md border border-emerald-200 mb-4">
-                        <div className="flex justify-between items-center">
+                    <div>
+                      <Label htmlFor="notes" className="text-gray-700">Order Notes</Label>
+                      <Textarea 
+                        id="notes" 
+                        name="notes"
+                        value={customerDetails.notes}
+                        onChange={handleInputChange}
+                        className="mt-1"
+                        placeholder="Special instructions for delivery"
+                        rows={3}
+                      />
+                    </div>
+                  </CardContent>
+                </Card>
+                
+                {/* Shipping Method */}
+                <Card className="mb-6">
+                  <CardContent className="pt-6">
+                    <h2 className="text-xl font-medium mb-4">Delivery Method</h2>
+                    
+                    <RadioGroup value={shippingMethod} onValueChange={setShippingMethod}>
+                      <div className="flex items-center space-x-2 mb-2">
+                        <RadioGroupItem value="standard" id="standard" />
+                        <Label htmlFor="standard" className="flex items-center">
+                          <Truck className="mr-2 h-4 w-4 text-emerald-700" />
                           <div>
-                            <p className="font-medium text-emerald-700">{appliedCoupon.code}</p>
-                            <p className="text-sm text-emerald-600">
-                              {appliedCoupon.type === "percentage" 
-                                ? `${appliedCoupon.discount}% off (up to ₹500)` 
-                                : appliedCoupon.type === "fixed"
-                                ? `₹${appliedCoupon.discount} off`
-                                : "Free Shipping"}
-                            </p>
+                            <p className="font-medium">Standard Delivery (₹30)</p>
+                            <p className="text-sm text-gray-500">Delivery within 24 hours</p>
                           </div>
-                          <Button 
-                            variant="ghost" 
-                            size="sm" 
-                            className="text-red-500 hover:text-red-600 h-8"
-                            onClick={handleRemoveCoupon}
-                          >
-                            Remove
-                          </Button>
-                        </div>
+                        </Label>
                       </div>
-                    ) : (
-                      <>
-                        <div className="flex space-x-2 mb-4">
-                          <Input
-                            placeholder="Enter coupon code"
-                            value={couponCode}
-                            onChange={(e) => setCouponCode(e.target.value)}
-                            className="uppercase"
-                          />
-                          <Button 
-                            type="button"
-                            onClick={handleApplyCoupon}
-                            className="bg-emerald-600 hover:bg-emerald-700"
-                            disabled={!couponCode}
-                          >
-                            Apply
-                          </Button>
-                        </div>
-                        <div>
-                          <Button 
-                            type="button" 
-                            variant="link" 
-                            onClick={() => setShowCouponsList(!showCouponsList)}
-                            className="p-0 text-emerald-600 hover:text-emerald-700 flex items-center"
-                          >
-                            <Scissors size={14} className="mr-1" />
-                            {showCouponsList ? "Hide available coupons" : "View available coupons"}
-                          </Button>
-                          
-                          {showCouponsList && (
-                            <div className="mt-3 grid grid-cols-1 md:grid-cols-2 gap-3">
-                              {availableCoupons.map((coupon) => (
-                                <div
-                                  key={coupon.code}
-                                  className="border border-dashed border-gray-200 p-3 rounded-md cursor-pointer hover:bg-gray-50"
-                                  onClick={() => {
-                                    setCouponCode(coupon.code);
-                                    setShowCouponsList(false);
-                                  }}
-                                >
-                                  <p className="font-medium">{coupon.code}</p>
-                                  <p className="text-sm text-gray-600">
-                                    {coupon.type === "percentage" 
-                                      ? `${coupon.discount}% off` 
-                                      : coupon.type === "fixed"
-                                      ? `₹${coupon.discount} off`
-                                      : "Free Shipping"}
-                                  </p>
-                                  <p className="text-xs text-gray-500">Min order: ₹{coupon.minOrder}</p>
-                                </div>
-                              ))}
-                              <div className="md:col-span-2 mt-2">
-                                <Link to="/coupons" className="text-emerald-600 hover:text-emerald-700 text-sm flex items-center">
-                                  View all coupons and offers <ArrowRight size={14} className="ml-1" />
-                                </Link>
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                      </>
-                    )}
-                  </div>
-                  
-                  <div className="bg-white p-6 border border-gray-100 rounded-md shadow-sm">
-                    <div className="flex items-center gap-3 mb-6">
-                      <CreditCard className="text-emerald-700" />
-                      <h2 className="text-xl font-medium">Payment Method</h2>
-                    </div>
-                    
-                    <FormField
-                      control={form.control}
-                      name="paymentMethod"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormControl>
-                            <RadioGroup
-                              onValueChange={field.onChange}
-                              defaultValue={field.value}
-                              className="space-y-3"
-                            >
-                              <FormItem className="flex items-center space-x-3 space-y-0 border border-gray-200 rounded-md p-4">
-                                <FormControl>
-                                  <RadioGroupItem value="card" />
-                                </FormControl>
-                                <FormLabel className="font-normal cursor-pointer flex-1">
-                                  Credit/Debit Card
-                                </FormLabel>
-                                <div className="flex gap-2">
-                                  <div className="w-10 h-6 bg-blue-500 rounded flex items-center justify-center text-white text-xs">VISA</div>
-                                  <div className="w-10 h-6 bg-red-500 rounded flex items-center justify-center text-white text-xs">MC</div>
-                                </div>
-                              </FormItem>
-                              <FormItem className="flex items-center space-x-3 space-y-0 border border-gray-200 rounded-md p-4">
-                                <FormControl>
-                                  <RadioGroupItem value="cash" />
-                                </FormControl>
-                                <FormLabel className="font-normal cursor-pointer">
-                                  Cash on Delivery
-                                </FormLabel>
-                              </FormItem>
-                            </RadioGroup>
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    {form.watch('paymentMethod') === 'card' && (
-                      <div className="mt-4 p-4 border border-gray-200 rounded-md bg-gray-50">
-                        <p className="text-sm text-gray-600 mb-3">This is a demo payment implementation. No actual payment will be processed.</p>
-                        <div className="space-y-3">
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="express" id="express" />
+                        <Label htmlFor="express" className="flex items-center">
+                          <Clock className="mr-2 h-4 w-4 text-emerald-700" />
                           <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Card Number</label>
-                            <Input 
-                              placeholder="4242 4242 4242 4242" 
-                              className="bg-white" 
-                              defaultValue="4242424242424242"
-                            />
+                            <p className="font-medium">Express Delivery (₹60)</p>
+                            <p className="text-sm text-gray-500">Delivery within 2 hours</p>
                           </div>
-                          <div className="grid grid-cols-2 gap-4">
-                            <div>
-                              <label className="block text-sm font-medium text-gray-700 mb-1">Expiry Date</label>
-                              <Input 
-                                placeholder="MM/YY" 
-                                className="bg-white" 
-                                defaultValue="12/25"
+                        </Label>
+                      </div>
+                    </RadioGroup>
+                  </CardContent>
+                </Card>
+                
+                {/* Delivery Time Slots */}
+                <Card className="mb-6">
+                  <CardContent className="pt-6">
+                    <h2 className="text-xl font-medium mb-4">Delivery Time</h2>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                      {shippingSlots.map((slot) => (
+                        <button
+                          key={slot.id}
+                          type="button"
+                          onClick={() => handleSlotSelect(slot.id)}
+                          disabled={!slot.available}
+                          className={`
+                            p-4 border rounded-md text-left transition-colors
+                            ${!slot.available ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : ''}
+                            ${selectedSlot === slot.id ? 'border-emerald-700 bg-emerald-50' : 'border-gray-200 hover:border-emerald-200'}
+                          `}
+                        >
+                          <p className="font-medium">{slot.time}</p>
+                          <p className="text-sm text-gray-500">{slot.day}</p>
+                          {!slot.available && <p className="text-xs text-red-500 mt-1">Not Available</p>}
+                        </button>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+                
+                {/* Payment Method */}
+                <Card>
+                  <CardContent className="pt-6">
+                    <h2 className="text-xl font-medium mb-4">Payment Method</h2>
+                    
+                    <RadioGroup value={paymentMethod} onValueChange={setPaymentMethod}>
+                      <div className="flex items-center space-x-2 mb-2">
+                        <RadioGroupItem value="cash" id="cash" />
+                        <Label htmlFor="cash">Cash on Delivery</Label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="card" id="card" />
+                        <Label htmlFor="card" className="flex items-center">
+                          <CreditCard className="mr-2 h-4 w-4" />
+                          <span>Credit/Debit Card</span>
+                        </Label>
+                      </div>
+                    </RadioGroup>
+                  </CardContent>
+                </Card>
+              </div>
+              
+              {/* Right Side - Order Summary */}
+              <div className="lg:col-span-4">
+                <div className="sticky top-24">
+                  <Card>
+                    <CardContent className="pt-6">
+                      <h2 className="text-xl font-medium mb-4">Order Summary</h2>
+                      
+                      <div className="space-y-4 mb-6">
+                        {cart.map((item) => (
+                          <div key={item.vegetable.id} className="flex items-start">
+                            <div className="h-12 w-12 rounded bg-gray-100 overflow-hidden flex-shrink-0 mr-3">
+                              <img 
+                                src={item.vegetable.images[0].url} 
+                                alt={item.vegetable.name} 
+                                className="h-full w-full object-cover"
                               />
                             </div>
-                            <div>
-                              <label className="block text-sm font-medium text-gray-700 mb-1">CVV</label>
-                              <Input 
-                                placeholder="123" 
-                                className="bg-white" 
-                                defaultValue="123"
-                              />
+                            <div className="flex-grow">
+                              <p className="text-sm">{item.vegetable.name} <span className="text-gray-500">× {item.quantity}</span></p>
+                              <p className="font-medium">₹{item.vegetable.price * item.quantity}</p>
                             </div>
                           </div>
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Cardholder Name</label>
-                            <Input 
-                              placeholder="John Doe" 
-                              className="bg-white" 
-                              defaultValue="Demo User"
-                            />
-                          </div>
+                        ))}
+                      </div>
+                      
+                      <Separator className="my-4" />
+                      
+                      <div className="space-y-2 text-sm">
+                        <div className="flex justify-between">
+                          <span className="text-gray-500">Subtotal</span>
+                          <span>₹{subtotal}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-gray-500">Delivery Fee</span>
+                          <span>₹{deliveryFee}</span>
+                        </div>
+                        
+                        <Separator className="my-2" />
+                        
+                        <div className="flex justify-between font-medium text-base">
+                          <span>Total</span>
+                          <span>₹{total}</span>
                         </div>
                       </div>
-                    )}
-                  </div>
-                  
-                  <div className="bg-white p-6 border border-gray-100 rounded-md shadow-sm">
-                    <div className="flex items-center gap-3 mb-6">
-                      <Truck className="text-emerald-700" />
-                      <h2 className="text-xl font-medium">Delivery Options</h2>
-                    </div>
-                    
-                    <div className="border border-emerald-100 bg-emerald-50 p-4 rounded-md text-emerald-800">
-                      <p className="font-medium">Standard Delivery</p>
-                      <p className="text-sm">Delivery within 2-3 hours</p>
-                    </div>
-                  </div>
-                  
-                  <Button 
-                    type="submit" 
-                    className="w-full md:w-auto bg-emerald-700 hover:bg-emerald-800 px-8 py-6"
-                    disabled={isLoading || isCardProcessing}
-                  >
-                    {isCardProcessing ? (
-                      <>Processing payment...</>
-                    ) : (
-                      <>
-                        {form.watch('paymentMethod') === 'card' 
-                          ? `Proceed to Payment (₹${totalAmount})` 
-                          : `Place Order (₹${totalAmount})`}
-                      </>
-                    )}
-                  </Button>
-                </form>
-              </Form>
-            </motion.div>
-            
-            <motion.div 
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-            >
-              <div className="bg-gray-50 p-6 rounded-md shadow-sm sticky top-8">
-                <h2 className="text-lg font-medium mb-4">Order Summary</h2>
-                
-                <div className="space-y-4 mb-4">
-                  {cartItems.map((item) => (
-                    <div key={item.id} className="flex justify-between text-sm">
-                      <span>{item.name} × {item.quantity}</span>
-                      <span>₹{item.price * item.quantity}</span>
-                    </div>
-                  ))}
-                </div>
-                
-                <Separator className="my-4" />
-                
-                <div className="space-y-2 mb-4">
-                  <div className="flex justify-between text-sm">
-                    <span>Subtotal</span>
-                    <span>₹{cartTotal}</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span>Delivery Fee</span>
-                    <span>{deliveryFee === 0 ? 'Free' : `₹${deliveryFee}`}</span>
-                  </div>
-                  {discount > 0 && (
-                    <div className="flex justify-between text-sm text-emerald-600">
-                      <span>Discount</span>
-                      <span>-₹{discount}</span>
-                    </div>
-                  )}
-                </div>
-                
-                <Separator className="my-4" />
-                
-                <div className="flex justify-between font-medium">
-                  <span>Total</span>
-                  <span className="text-emerald-700">₹{totalAmount}</span>
-                </div>
-
-                <div className="mt-6">
-                  <Progress value={80} className="h-2 bg-gray-200" />
-                  <p className="text-xs mt-2 text-gray-500">
-                    Add ₹{Math.max(0, 500 - cartTotal)} more to get free delivery
-                  </p>
+                      
+                      <Button className="w-full mt-6 bg-emerald-700 hover:bg-emerald-800" type="submit">
+                        Proceed to Payment
+                      </Button>
+                    </CardContent>
+                  </Card>
                 </div>
               </div>
-            </motion.div>
-          </div>
+            </div>
+          </form>
         </div>
-      </main>
-      <Footer />
+      </div>
 
       {/* Map Dialog */}
-      <Dialog open={mapDialogOpen} onOpenChange={setMapDialogOpen}>
-        <DialogContent className="sm:max-w-[600px]">
+      <Dialog open={isMapDialogOpen} onOpenChange={setIsMapDialogOpen}>
+        <DialogContent className="max-w-3xl">
           <DialogHeader>
-            <DialogTitle>Select Delivery Location</DialogTitle>
+            <DialogTitle>Select Your Delivery Location</DialogTitle>
             <DialogDescription>
-              Click on the map to select your exact delivery location
+              Drag the pin to mark your exact delivery location on the map
             </DialogDescription>
           </DialogHeader>
-          <div className="h-[400px] overflow-hidden rounded-md">
-            <CheckoutLocationMap onLocationSelect={handleSelectLocation} />
+
+          <div className="h-[400px] w-full relative" ref={mapRef}>
+            {/* Map will be rendered here */}
           </div>
+
+          {customerLocation && (
+            <div>
+              <p className="text-sm mb-2"><strong>Selected Location:</strong> {deliveryAddress || 'Address not available'}</p>
+              <div className="flex justify-end gap-2 mt-4">
+                <Button variant="outline" onClick={handleMapModalClose}>Cancel</Button>
+                <Button onClick={handleMapModalClose}>Confirm Location</Button>
+              </div>
+            </div>
+          )}
         </DialogContent>
       </Dialog>
+
+      <Footer />
     </div>
   );
 };
