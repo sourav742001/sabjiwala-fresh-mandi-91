@@ -2,7 +2,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { Phone, Mail, MapPin } from 'lucide-react';
-import LogoComponent from './LogoComponent';
 
 const Footer = () => {
   return (
@@ -11,8 +10,13 @@ const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {/* Company Info */}
           <div>
-            <LogoComponent variant="footer" />
-            <p className="text-gray-300 mt-4 mb-6">
+            <Link to="/" className="inline-block mb-4">
+              <h3 className="text-2xl font-bold">
+                <span className="text-emerald-400">The</span>
+                <span className="text-sabjiwala-orange">SabjiWala</span>
+              </h3>
+            </Link>
+            <p className="text-gray-300 mb-6">
               Bringing the freshness of Delhi's sabji mandis directly to your doorstep. Quality, convenience, and fair prices.
             </p>
             <div className="flex space-x-4">
