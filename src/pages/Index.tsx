@@ -15,24 +15,10 @@ import RecipesSection from '@/components/HomePageSections/RecipesSection';
 import OurFarmers from '@/components/HomePageSections/OurFarmers';
 import DownloadAppSection from '@/components/HomePageSections/DownloadAppSection';
 import PromotionsCarousel from '@/components/HomePageSections/PromotionsCarousel';
-import BlogSection from '@/components/HomePageSections/BlogSection';
-import CustomerReviewsGrid from '@/components/HomePageSections/CustomerReviewsGrid';
 import TrustBadges from '@/components/HomePageSections/TrustBadges';
 import NutritionalInfoSection from '@/components/HomePageSections/NutritionalInfoSection';
 import SustainabilitySection from '@/components/HomePageSections/SustainabilitySection';
-import PartnershipSection from '@/components/HomePageSections/PartnershipSection';
-import FreshProcessSection from '@/components/HomePageSections/FreshProcessSection';
-import InstagramFeed from '@/components/HomePageSections/InstagramFeed';
 import DeliveryDetailsSection from '@/components/HomePageSections/DeliveryDetailsSection';
-import CulinaryTipsSection from '@/components/HomePageSections/CulinaryTipsSection';
-import SeasonalHighlightsSection from '@/components/HomePageSections/SeasonalHighlightsSection';
-import VegetableGuidesSection from '@/components/HomePageSections/VegetableGuidesSection';
-import CommunitySupportSection from '@/components/HomePageSections/CommunitySupportSection';
-import EducationalContentSection from '@/components/HomePageSections/EducationalContentSection';
-import GiftingOptionsSection from '@/components/HomePageSections/GiftingOptionsSection';
-import ValuePropositionSection from '@/components/HomePageSections/ValuePropositionSection';
-import TestimonialsGridSection from '@/components/HomePageSections/TestimonialsGridSection';
-import FeaturedCategoriesSection from '@/components/HomePageSections/FeaturedCategoriesSection';
 import SabjiWalaAI from '@/components/SabjiWalaAI';
 import GoatAnimation from '@/components/GoatAnimation';
 
@@ -52,29 +38,15 @@ const Index = () => {
           <FeaturesSection />
           <SeasonalSection />
           <CategoriesSection />
-          <FeaturedCategoriesSection />
           <FeaturedProducts />
-          <SeasonalHighlightsSection />
           <BenefitsSection />
-          <ValuePropositionSection />
           <HowItWorks />
-          <FreshProcessSection />
           <RecipesSection />
-          <CulinaryTipsSection />
-          <VegetableGuidesSection />
           <NutritionalInfoSection />
-          <EducationalContentSection />
           <Testimonials />
-          <TestimonialsGridSection />
-          <CustomerReviewsGrid />
-          <CommunitySupportSection />
           <SustainabilitySection />
           <OurFarmers />
-          <PartnershipSection />
-          <GiftingOptionsSection />
-          <BlogSection />
           <DeliveryDetailsSection />
-          <InstagramFeed />
           <DownloadAppSection />
           <Newsletter />
         </main>

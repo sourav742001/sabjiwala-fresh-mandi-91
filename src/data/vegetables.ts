@@ -1253,22 +1253,402 @@ export const vegetables: Vegetable[] = [
     name: "Organic Kiwi",
     price: 140,
     unit: "kg",
-    description: "Tangy-sweet kiwi with bright green flesh and tiny black seeds. Perfect for eating fresh, adding to fruit salads, or using in smoothies.",
-    nutritionalInfo: "Excellent source of vitamin C, vitamin K, vitamin E, folate, and potassium.",
+    description: "Tangy-sweet kiwi with fuzzy skin and bright green flesh. Rich in vitamin C and dietary fiber.",
+    nutritionalInfo: "Excellent source of vitamin C, vitamin K, and vitamin E.",
     origin: "Organic imported",
     images: [
       {
         id: 1,
         url: "https://images.unsplash.com/photo-1618897996318-5a901fa6ca71?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80",
-        alt: "Fresh organic kiwi"
+        alt: "Fresh kiwi"
       }
     ],
     isOrganic: true,
     inStock: true,
     category: "fruit",
     type: "fruit"
+  },
+  {
+    id: 112,
+    name: "Blueberries",
+    price: 180,
+    unit: "punnet",
+    description: "Plump, sweet-tart blueberries loaded with antioxidants. Perfect for snacking, baking, or adding to breakfast.",
+    nutritionalInfo: "Rich in antioxidants, vitamin K, and manganese.",
+    origin: "Imported",
+    images: [
+      {
+        id: 1,
+        url: "https://images.unsplash.com/photo-1498557850523-fd3d118b962e?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80",
+        alt: "Fresh blueberries"
+      }
+    ],
+    isOrganic: false,
+    inStock: true,
+    category: "fruit",
+    type: "fruit"
+  },
+  {
+    id: 113,
+    name: "Organic Cherries",
+    price: 250,
+    unit: "kg",
+    description: "Sweet, juicy cherries. Perfect for snacking, baking, or making preserves.",
+    nutritionalInfo: "Rich in antioxidants, vitamin C, and potassium.",
+    origin: "Organic farms in Kashmir",
+    images: [
+      {
+        id: 1,
+        url: "https://images.unsplash.com/photo-1528821128474-27f963b062bf?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80",
+        alt: "Fresh cherries"
+      }
+    ],
+    isOrganic: true,
+    inStock: true,
+    category: "fruit",
+    type: "fruit"
+  },
+  {
+    id: 114,
+    name: "Lychee",
+    price: 160,
+    unit: "kg",
+    description: "Sweet, fragrant lychees with translucent white flesh. A seasonal tropical delight.",
+    nutritionalInfo: "Rich in vitamin C, copper, and potassium.",
+    origin: "Farms in West Bengal",
+    images: [
+      {
+        id: 1,
+        url: "https://images.unsplash.com/photo-1614357932292-a38393b11afa?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80",
+        alt: "Fresh lychee"
+      }
+    ],
+    isOrganic: false,
+    inStock: true,
+    category: "fruit",
+    type: "fruit"
+  },
+  {
+    id: 115,
+    name: "Organic Peaches",
+    price: 170,
+    unit: "kg",
+    description: "Sweet, juicy peaches with velvety skin. Perfect for eating fresh, grilling, or in desserts.",
+    nutritionalInfo: "Good source of vitamin A, vitamin C, and potassium.",
+    origin: "Organic farms in Himachal Pradesh",
+    images: [
+      {
+        id: 1,
+        url: "https://images.unsplash.com/photo-1595743825637-cdafc8ad4173?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80",
+        alt: "Fresh peaches"
+      }
+    ],
+    isOrganic: true,
+    inStock: true,
+    category: "fruit",
+    type: "fruit"
+  },
+  {
+    id: 116,
+    name: "Pears",
+    price: 120,
+    unit: "kg",
+    description: "Sweet, juicy pears with smooth flesh. Perfect for eating fresh, poaching, or in salads.",
+    nutritionalInfo: "Good source of fiber, vitamin C, and copper.",
+    origin: "Farms in Kashmir",
+    images: [
+      {
+        id: 1,
+        url: "https://images.unsplash.com/photo-1514756331096-242fdeb70d4a?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80",
+        alt: "Fresh pears"
+      }
+    ],
+    isOrganic: false,
+    inStock: true,
+    category: "fruit",
+    type: "fruit"
+  },
+  {
+    id: 117,
+    name: "Organic Avocados",
+    price: 160,
+    unit: "piece",
+    description: "Creamy, nutritious avocados. Perfect for guacamole, salads, or toast.",
+    nutritionalInfo: "Rich in healthy fats, fiber, and potassium.",
+    origin: "Organic farms in South India",
+    images: [
+      {
+        id: 1,
+        url: "https://images.unsplash.com/photo-1519162808019-7de1683fa2ad?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80",
+        alt: "Fresh avocados"
+      }
+    ],
+    isOrganic: true,
+    inStock: true,
+    category: "fruit",
+    type: "fruit"
+  },
+  {
+    id: 118,
+    name: "Plums",
+    price: 130,
+    unit: "kg",
+    description: "Sweet-tart plums with juicy flesh. Perfect for eating fresh, baking, or making preserves.",
+    nutritionalInfo: "Good source of vitamin C, vitamin K, and potassium.",
+    origin: "Farms in Himachal Pradesh",
+    images: [
+      {
+        id: 1,
+        url: "https://images.unsplash.com/photo-1596363505729-b65b7b0a5cba?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80",
+        alt: "Fresh plums"
+      }
+    ],
+    isOrganic: false,
+    inStock: true,
+    category: "fruit",
+    type: "fruit"
+  },
+  {
+    id: 119,
+    name: "Organic Dragon Fruit",
+    price: 200,
+    unit: "piece",
+    description: "Exotic dragon fruit with mildly sweet flavor and crunchy seeds. A beautiful addition to fruit salads.",
+    nutritionalInfo: "Rich in vitamin C, iron, and antioxidants.",
+    origin: "Organic farms in Maharashtra",
+    images: [
+      {
+        id: 1,
+        url: "https://images.unsplash.com/photo-1527325678457-068eabe686d0?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80",
+        alt: "Fresh dragon fruit"
+      }
+    ],
+    isOrganic: true,
+    inStock: true,
+    category: "fruit",
+    type: "fruit"
+  },
+  {
+    id: 120,
+    name: "Guava",
+    price: 80,
+    unit: "kg",
+    description: "Sweet, aromatic guavas with edible seeds. Perfect for eating fresh or making juice.",
+    nutritionalInfo: "Excellent source of vitamin C, fiber, and potassium.",
+    origin: "Farms in Uttar Pradesh",
+    images: [
+      {
+        id: 1,
+        url: "https://images.unsplash.com/photo-1536511132770-e5058c7e8c46?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80",
+        alt: "Fresh guava"
+      }
+    ],
+    isOrganic: false,
+    inStock: true,
+    category: "fruit",
+    type: "fruit"
+  },
+  {
+    id: 121,
+    name: "Organic Figs",
+    price: 190,
+    unit: "kg",
+    description: "Sweet, honeyed figs with soft flesh and crunchy seeds. A delicious Mediterranean treat.",
+    nutritionalInfo: "Good source of fiber, potassium, and calcium.",
+    origin: "Organic farms in Karnataka",
+    images: [
+      {
+        id: 1,
+        url: "https://images.unsplash.com/photo-1601379760883-1bb497c558e0?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80",
+        alt: "Fresh figs"
+      }
+    ],
+    isOrganic: true,
+    inStock: true,
+    category: "fruit",
+    type: "fruit"
+  },
+  {
+    id: 122,
+    name: "Cantaloupe",
+    price: 110,
+    unit: "piece",
+    description: "Sweet, juicy cantaloupe with orange flesh. Perfect for eating fresh or in fruit salads.",
+    nutritionalInfo: "Rich in vitamin A, vitamin C, and potassium.",
+    origin: "Farms in Maharashtra",
+    images: [
+      {
+        id: 1,
+        url: "https://images.unsplash.com/photo-1571575173700-afb9492e6a50?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80",
+        alt: "Fresh cantaloupe"
+      }
+    ],
+    isOrganic: false,
+    inStock: true,
+    category: "fruit",
+    type: "fruit"
+  },
+  {
+    id: 123,
+    name: "Organic Apricots",
+    price: 150,
+    unit: "kg",
+    description: "Sweet-tart apricots with velvety skin. Perfect for eating fresh, drying, or making preserves.",
+    nutritionalInfo: "Good source of vitamin A, vitamin C, and fiber.",
+    origin: "Organic farms in Ladakh",
+    images: [
+      {
+        id: 1,
+        url: "https://images.unsplash.com/photo-1560806175-c9379776a25e?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80",
+        alt: "Fresh apricots"
+      }
+    ],
+    isOrganic: true,
+    inStock: true,
+    category: "fruit",
+    type: "fruit"
+  },
+  {
+    id: 124,
+    name: "Custard Apple",
+    price: 140,
+    unit: "kg",
+    description: "Creamy, sweet custard apples with unique flavor. A tropical delight.",
+    nutritionalInfo: "Rich in vitamin C, vitamin B6, and magnesium.",
+    origin: "Farms in Maharashtra",
+    images: [
+      {
+        id: 1,
+        url: "https://images.unsplash.com/photo-1626544827763-d516dce335e2?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80",
+        alt: "Fresh custard apple"
+      }
+    ],
+    isOrganic: false,
+    inStock: true,
+    category: "fruit",
+    type: "fruit"
+  },
+  {
+    id: 125,
+    name: "Organic Lemons",
+    price: 90,
+    unit: "kg",
+    description: "Bright, tangy lemons. Essential for cooking, baking, and beverages.",
+    nutritionalInfo: "Excellent source of vitamin C and antioxidants.",
+    origin: "Organic farms in Punjab",
+    images: [
+      {
+        id: 1,
+        url: "https://images.unsplash.com/photo-1582287086860-b36aba176368?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80",
+        alt: "Fresh lemons"
+      }
+    ],
+    isOrganic: true,
+    inStock: true,
+    category: "fruit",
+    type: "fruit"
+  },
+  {
+    id: 126,
+    name: "Muskmelon",
+    price: 100,
+    unit: "piece",
+    description: "Sweet, aromatic muskmelon with soft orange flesh. Perfect for eating fresh or in fruit salads.",
+    nutritionalInfo: "Rich in vitamin A, vitamin C, and potassium.",
+    origin: "Farms in Gujarat",
+    images: [
+      {
+        id: 1,
+        url: "https://images.unsplash.com/photo-1571680322279-a226e6a4cc2a?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80",
+        alt: "Fresh muskmelon"
+      }
+    ],
+    isOrganic: false,
+    inStock: true,
+    category: "fruit",
+    type: "fruit"
+  },
+  {
+    id: 127,
+    name: "Organic Mulberries",
+    price: 160,
+    unit: "kg",
+    description: "Sweet, juicy mulberries. Perfect for eating fresh, in desserts, or making preserves.",
+    nutritionalInfo: "Rich in iron, vitamin C, and antioxidants.",
+    origin: "Organic farms in Kashmir",
+    images: [
+      {
+        id: 1,
+        url: "https://images.unsplash.com/photo-1615219138332-abe9d5890fb1?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80",
+        alt: "Fresh mulberries"
+      }
+    ],
+    isOrganic: true,
+    inStock: true,
+    category: "fruit",
+    type: "fruit"
+  },
+  {
+    id: 128,
+    name: "Passion Fruit",
+    price: 180,
+    unit: "kg",
+    description: "Tart-sweet passion fruit with aromatic flavor. Perfect for juices, desserts, or cocktails.",
+    nutritionalInfo: "Rich in vitamin A, vitamin C, and dietary fiber.",
+    origin: "Farms in Kerala",
+    images: [
+      {
+        id: 1,
+        url: "https://images.unsplash.com/photo-1604495772376-9657f0035eb5?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80",
+        alt: "Fresh passion fruit"
+      }
+    ],
+    isOrganic: false,
+    inStock: true,
+    category: "fruit",
+    type: "fruit"
+  },
+  {
+    id: 129,
+    name: "Organic Seedless Grapes",
+    price: 120,
+    unit: "kg",
+    description: "Sweet, seedless grapes. Perfect for snacking or adding to fruit salads.",
+    nutritionalInfo: "Contains resveratrol, vitamin K, and antioxidants.",
+    origin: "Organic farms in Maharashtra",
+    images: [
+      {
+        id: 1,
+        url: "https://images.unsplash.com/photo-1537640538966-79f369143f8f?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80",
+        alt: "Fresh seedless grapes"
+      }
+    ],
+    isOrganic: true,
+    inStock: true,
+    category: "fruit",
+    type: "fruit"
+  },
+  {
+    id: 130,
+    name: "Sapota",
+    price: 110,
+    unit: "kg",
+    description: "Sweet sapota with soft, grainy flesh. Also known as chikoo, a popular tropical fruit.",
+    nutritionalInfo: "Rich in fiber, vitamins, and minerals.",
+    origin: "Farms in Karnataka",
+    images: [
+      {
+        id: 1,
+        url: "https://images.unsplash.com/photo-1582398626929-4805467ba4ab?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80",
+        alt: "Fresh sapota"
+      }
+    ],
+    isOrganic: false,
+    inStock: true,
+    category: "fruit",
+    type: "fruit"
   }
-]
+];
 
 /**
  * Get all unique categories from the vegetables data

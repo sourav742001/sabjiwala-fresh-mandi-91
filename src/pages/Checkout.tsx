@@ -19,6 +19,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Progress } from "@/components/ui/progress";
 import { Link } from 'react-router-dom';
+import CheckoutLocationMap from '@/components/CheckoutLocationMap';
 
 // Form validation schema
 const addressSchema = z.object({
@@ -50,6 +51,7 @@ const Checkout = () => {
   const [couponCode, setCouponCode] = useState("");
   const [appliedCoupon, setAppliedCoupon] = useState<any>(null);
   const [showCouponsList, setShowCouponsList] = useState(false);
+  const [isCardProcessing, setIsCardProcessing] = useState(false);
 
   useEffect(() => {
     // Check if user is logged in
@@ -96,6 +98,41 @@ const Checkout = () => {
     }
   }, [selectedLocation, form]);
 
+  // Process Stripe payment
+  const processStripePayment = async () => {
+    setIsCardProcessing(true);
+    
+    try {
+      // Simulate a Stripe payment process
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      
+      // Store checkout data
+      const checkoutData = {
+        ...form.getValues(),
+        appliedCoupon,
+        paymentSuccess: true
+      };
+      
+      sessionStorage.setItem('checkoutData', JSON.stringify(checkoutData));
+      
+      navigate("/order-confirmation", { 
+        state: { 
+          paymentMethod: "Credit Card",
+          orderId: `ORD-${Math.floor(Math.random() * 1000000)}`,
+          appliedCoupon: appliedCoupon
+        } 
+      });
+    } catch (error) {
+      toast({
+        title: "Payment failed",
+        description: "There was an error processing your payment. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsCardProcessing(false);
+    }
+  };
+
   function onSubmit(values: z.infer<typeof addressSchema>) {
     setIsLoading(true);
     console.log("Form values:", values);
@@ -107,9 +144,9 @@ const Checkout = () => {
     };
     sessionStorage.setItem('checkoutData', JSON.stringify(checkoutData));
     
-    // If card payment, go to payment page, otherwise go to confirmation
+    // If card payment, process with Stripe, otherwise go to confirmation
     if (values.paymentMethod === "card") {
-      navigate("/payment");
+      processStripePayment();
     } else {
       navigate("/order-confirmation", { 
         state: { 
@@ -163,7 +200,6 @@ const Checkout = () => {
     toast({
       title: "Coupon applied",
       description: `${foundCoupon.code} has been applied to your order`,
-      // Changed from "success" to "default"
       variant: "default", 
     });
   };
@@ -463,8 +499,8 @@ const Checkout = () => {
                                   Credit/Debit Card
                                 </FormLabel>
                                 <div className="flex gap-2">
-                                  <div className="w-10 h-6 bg-gray-200 rounded"></div>
-                                  <div className="w-10 h-6 bg-gray-200 rounded"></div>
+                                  <div className="w-10 h-6 bg-blue-500 rounded flex items-center justify-center text-white text-xs">VISA</div>
+                                  <div className="w-10 h-6 bg-red-500 rounded flex items-center justify-center text-white text-xs">MC</div>
                                 </div>
                               </FormItem>
                               <FormItem className="flex items-center space-x-3 space-y-0 border border-gray-200 rounded-md p-4">
@@ -481,6 +517,48 @@ const Checkout = () => {
                         </FormItem>
                       )}
                     />
+
+                    {form.watch('paymentMethod') === 'card' && (
+                      <div className="mt-4 p-4 border border-gray-200 rounded-md bg-gray-50">
+                        <p className="text-sm text-gray-600 mb-3">This is a demo payment implementation. No actual payment will be processed.</p>
+                        <div className="space-y-3">
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Card Number</label>
+                            <Input 
+                              placeholder="4242 4242 4242 4242" 
+                              className="bg-white" 
+                              defaultValue="4242424242424242"
+                            />
+                          </div>
+                          <div className="grid grid-cols-2 gap-4">
+                            <div>
+                              <label className="block text-sm font-medium text-gray-700 mb-1">Expiry Date</label>
+                              <Input 
+                                placeholder="MM/YY" 
+                                className="bg-white" 
+                                defaultValue="12/25"
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-sm font-medium text-gray-700 mb-1">CVV</label>
+                              <Input 
+                                placeholder="123" 
+                                className="bg-white" 
+                                defaultValue="123"
+                              />
+                            </div>
+                          </div>
+                          <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">Cardholder Name</label>
+                            <Input 
+                              placeholder="John Doe" 
+                              className="bg-white" 
+                              defaultValue="Demo User"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    )}
                   </div>
                   
                   <div className="bg-white p-6 border border-gray-100 rounded-md shadow-sm">
@@ -498,11 +576,17 @@ const Checkout = () => {
                   <Button 
                     type="submit" 
                     className="w-full md:w-auto bg-emerald-700 hover:bg-emerald-800 px-8 py-6"
-                    disabled={isLoading}
+                    disabled={isLoading || isCardProcessing}
                   >
-                    {form.watch('paymentMethod') === 'card' 
-                      ? `Proceed to Payment (₹${totalAmount})` 
-                      : `Place Order (₹${totalAmount})`}
+                    {isCardProcessing ? (
+                      <>Processing payment...</>
+                    ) : (
+                      <>
+                        {form.watch('paymentMethod') === 'card' 
+                          ? `Proceed to Payment (₹${totalAmount})` 
+                          : `Place Order (₹${totalAmount})`}
+                      </>
+                    )}
                   </Button>
                 </form>
               </Form>
@@ -569,27 +653,11 @@ const Checkout = () => {
           <DialogHeader>
             <DialogTitle>Select Delivery Location</DialogTitle>
             <DialogDescription>
-              Click on the map to select your delivery location
+              Click on the map to select your exact delivery location
             </DialogDescription>
           </DialogHeader>
-          <div className="h-80 bg-gray-100 rounded-md flex items-center justify-center">
-            <div className="text-center">
-              <Map size={40} className="mx-auto mb-2 text-gray-400" />
-              <p className="text-gray-500">Map will load here</p>
-              {/* This would be replaced with actual map component */}
-            </div>
-          </div>
-          <div className="flex justify-end gap-2 mt-4">
-            <Button variant="outline" onClick={() => setMapDialogOpen(false)}>
-              Cancel
-            </Button>
-            <Button onClick={() => handleSelectLocation({ 
-              lat: 19.0760, 
-              lng: 72.8777, 
-              address: "Mumbai Central, Mumbai, Maharashtra 400008"
-            })}>
-              Confirm Location
-            </Button>
+          <div className="h-[400px] overflow-hidden rounded-md">
+            <CheckoutLocationMap onLocationSelect={handleSelectLocation} />
           </div>
         </DialogContent>
       </Dialog>

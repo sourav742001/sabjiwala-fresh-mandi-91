@@ -5,6 +5,7 @@ import Footer from '@/components/Footer';
 import { Phone, Mail, MapPin, Send } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
+import MapboxMap from '@/components/MapboxMap';
 
 const Contact = () => {
   const { toast } = useToast();
@@ -216,15 +217,9 @@ const Contact = () => {
         {/* Map Section */}
         <section className="mb-16">
           <div className="container-custom">
-            <div className="bg-gray-200 h-96 rounded-md overflow-hidden">
-              {/* Replace with actual map integration */}
-              <div className="w-full h-full flex items-center justify-center bg-emerald-50 text-emerald-700">
-                <div className="text-center">
-                  <MapPin size={48} className="mx-auto mb-4" />
-                  <p className="text-lg font-medium">Map Integration</p>
-                  <p className="text-gray-600">(Google Maps would be displayed here)</p>
-                </div>
-              </div>
+            <h2 className="text-2xl font-medium mb-6 text-center">Find Us on the Map</h2>
+            <div className="bg-white p-4 border border-gray-100 rounded-md overflow-hidden shadow-sm">
+              <MapboxMap />
             </div>
           </div>
         </section>
