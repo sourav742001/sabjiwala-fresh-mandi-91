@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCart } from '@/context/CartContext';
@@ -19,6 +18,25 @@ const Checkout = () => {
   const navigate = useNavigate();
   const { cart, calculateTotalPrice } = useCart();
   const { toast } = useToast();
+  
+  // Check if user is logged in
+  useEffect(() => {
+    const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+    if (!isLoggedIn) {
+      toast({
+        title: "Login Required",
+        description: "Please log in to access the checkout page.",
+        variant: "destructive"
+      });
+      navigate('/login');
+      return;
+    }
+    
+    // If cart is empty, redirect to cart page
+    if (cart.length === 0) {
+      navigate('/cart');
+    }
+  }, [cart, navigate, toast]);
   
   const [isMapDialogOpen, setIsMapDialogOpen] = useState(false);
   const [customerLocation, setCustomerLocation] = useState<[number, number] | null>(null);
@@ -147,13 +165,6 @@ const Checkout = () => {
     // Proceed to payment
     navigate('/payment');
   };
-  
-  // If cart is empty, redirect to cart page
-  useEffect(() => {
-    if (cart.length === 0) {
-      navigate('/cart');
-    }
-  }, [cart, navigate]);
   
   return (
     <div className="min-h-screen flex flex-col bg-white">

@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { Toaster } from 'sonner';
 import { CartProvider } from './context/CartContext';
 import { FavoritesProvider } from './context/FavoritesContext';
+import ScrollToTop from './components/ScrollToTop';
 import Index from './pages/Index';
 import Shop from './pages/Shop';
 import VegetableDetails from './pages/VegetableDetails';
@@ -32,32 +33,72 @@ import ShippingPolicy from './pages/ShippingPolicy';
 import Coupons from './pages/Coupons';
 import Favorites from './pages/Favorites';
 
+// Auth guard component to protect routes
+const RequireAuth = ({ children }: { children: React.ReactNode }) => {
+  const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+  
+  if (!isLoggedIn) {
+    return <Navigate to="/login" replace />;
+  }
+  
+  return <>{children}</>;
+};
+
 function App() {
   return (
     <Router>
       <CartProvider>
         <FavoritesProvider>
+          <ScrollToTop />
           <Toaster position="top-right" />
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/shop" element={<Shop />} />
             <Route path="/vegetable/:id" element={<VegetableDetails />} />
             <Route path="/cart" element={<Cart />} />
-            <Route path="/checkout" element={<Checkout />} />
-            <Route path="/payment" element={<Payment />} />
-            <Route path="/order-confirmation" element={<OrderConfirmation />} />
+            <Route path="/checkout" element={
+              <RequireAuth>
+                <Checkout />
+              </RequireAuth>
+            } />
+            <Route path="/payment" element={
+              <RequireAuth>
+                <Payment />
+              </RequireAuth>
+            } />
+            <Route path="/order-confirmation" element={
+              <RequireAuth>
+                <OrderConfirmation />
+              </RequireAuth>
+            } />
             <Route path="/about" element={<About />} />
             <Route path="/contact" element={<Contact />} />
-            <Route path="/profile" element={<Profile />} />
-            <Route path="/orders" element={<Orders />} />
-            <Route path="/track-order/:id" element={<TrackOrder />} />
+            <Route path="/profile" element={
+              <RequireAuth>
+                <Profile />
+              </RequireAuth>
+            } />
+            <Route path="/orders" element={
+              <RequireAuth>
+                <Orders />
+              </RequireAuth>
+            } />
+            <Route path="/track-order/:id" element={
+              <RequireAuth>
+                <TrackOrder />
+              </RequireAuth>
+            } />
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
             <Route path="/search" element={<Search />} />
             <Route path="/categories" element={<Categories />} />
             <Route path="/recipes" element={<Recipes />} />
             <Route path="/recipe/:id" element={<ViewRecipe />} />
-            <Route path="/map-tracking" element={<MapTracking />} />
+            <Route path="/map-tracking" element={
+              <RequireAuth>
+                <MapTracking />
+              </RequireAuth>
+            } />
             <Route path="/seasonal-items" element={<SeasonalItems />} />
             <Route path="/faq" element={<FAQ />} />
             <Route path="/terms" element={<Terms />} />
