@@ -46,13 +46,14 @@ const Signup = () => {
   function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true);
     
-    // Simulate signup (replace with actual signup later)
+    // Simulate signup (replace with actual authentication later)
     setTimeout(() => {
       console.log("Signup values:", values);
       setIsLoading(false);
       
-      // For now, we'll just simulate a successful signup
+      // Set both localStorage and sessionStorage for persistent login
       localStorage.setItem('isLoggedIn', 'true');
+      sessionStorage.setItem('isLoggedInSession', 'true');
       localStorage.setItem('user', JSON.stringify({
         email: values.email,
         name: values.fullName

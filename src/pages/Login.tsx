@@ -38,8 +38,9 @@ const Login = () => {
       console.log("Login values:", values);
       setIsLoading(false);
       
-      // For now, we'll just simulate a successful login
+      // Set both localStorage and sessionStorage for persistent login
       localStorage.setItem('isLoggedIn', 'true');
+      sessionStorage.setItem('isLoggedInSession', 'true');
       localStorage.setItem('user', JSON.stringify({
         email: values.email,
         name: values.email.split('@')[0]

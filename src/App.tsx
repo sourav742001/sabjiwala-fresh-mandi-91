@@ -32,19 +32,37 @@ import Returns from './pages/Returns';
 import ShippingPolicy from './pages/ShippingPolicy';
 import Coupons from './pages/Coupons';
 import Favorites from './pages/Favorites';
+import { useEffect } from 'react';
 
 // Auth guard component to protect routes
 const RequireAuth = ({ children }: { children: React.ReactNode }) => {
-  const isLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
+  // Check if user was previously logged in (persistent login)
+  const isPreviouslyLoggedIn = localStorage.getItem('isLoggedIn') === 'true';
   
-  if (!isLoggedIn) {
+  // Check if the user just logged in in this session
+  const isCurrentlyLoggedIn = sessionStorage.getItem('isLoggedInSession') === 'true';
+  
+  if (!isPreviouslyLoggedIn && !isCurrentlyLoggedIn) {
     return <Navigate to="/login" replace />;
+  }
+  
+  // If the user is currently logged in but not persistently, update localStorage
+  if (!isPreviouslyLoggedIn && isCurrentlyLoggedIn) {
+    localStorage.setItem('isLoggedIn', 'true');
   }
   
   return <>{children}</>;
 };
 
 function App() {
+  // Effect to set session login flag when app loads
+  useEffect(() => {
+    if (localStorage.getItem('isLoggedIn') === 'true') {
+      // Mark that the user is logged in for this session
+      sessionStorage.setItem('isLoggedInSession', 'true');
+    }
+  }, []);
+
   return (
     <Router>
       <CartProvider>
