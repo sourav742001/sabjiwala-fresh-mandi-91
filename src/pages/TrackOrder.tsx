@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { CheckCircle, ShoppingBag, Truck, Navigation, Check, MapPin } from 'lucide-react';
-import { useToast } from '@/components/ui/use-toast';
+import { useToast } from '@/hooks/use-toast';
 
 // Type definition for order
 interface Order {
@@ -61,7 +61,7 @@ const TrackOrder = () => {
           setCurrentStep(1);
       }
       
-      // Simulate order progress
+      // Simulate order progress for demo purposes
       const timer = setTimeout(() => {
         const updatedOrders = orders.map((o: Order) => {
           if (o.id === orderId) {
@@ -106,7 +106,7 @@ const TrackOrder = () => {
         
         localStorage.setItem('orders', JSON.stringify(updatedOrders));
         setOrder((prev) => prev ? { ...prev, status: updatedOrders.find((o: Order) => o.id === orderId).status } : null);
-      }, 10000);
+      }, 10000); // Update every 10 seconds for demo purposes
       
       return () => clearTimeout(timer);
     }

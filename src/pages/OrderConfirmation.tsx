@@ -6,10 +6,12 @@ import { Button } from "@/components/ui/button";
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { Check, ShoppingBag, Truck, Clock } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 
 const OrderConfirmation = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { toast } = useToast();
   
   // Get data from location state
   const { orderId, paymentMethod } = location.state || {};
@@ -17,7 +19,15 @@ const OrderConfirmation = () => {
   useEffect(() => {
     if (!orderId) {
       navigate('/shop');
+      return;
     }
+    
+    // Show success toast
+    toast({
+      title: "Order Placed Successfully!",
+      description: `Your order #${orderId} has been placed.`,
+      variant: "default",
+    });
     
     // Store order in local storage for tracking and history
     const orderData = {
@@ -32,7 +42,7 @@ const OrderConfirmation = () => {
     const existingOrders = JSON.parse(localStorage.getItem('orders') || '[]');
     localStorage.setItem('orders', JSON.stringify([...existingOrders, orderData]));
     
-  }, [orderId, navigate, paymentMethod]);
+  }, [orderId, navigate, paymentMethod, toast]);
 
   if (!orderId) {
     return null;
