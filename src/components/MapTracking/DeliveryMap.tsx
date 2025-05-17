@@ -1,21 +1,24 @@
 
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
-import { Location } from '@/types/map';
-import { createMarkerElement, generateRoute, updateRoute } from '@/utils/mapUtils';
 import { useToast } from '@/hooks/use-toast';
 import { Navigation, Clock } from 'lucide-react';
 
+interface Location {
+  id: string;
+  name: string;
+  type: 'pickup' | 'dropoff' | 'vehicle';
+  coordinates: [number, number];
+}
+
 interface DeliveryMapProps {
   locations: Location[];
-  onRouteGenerated: (route: [number, number][]) => void;
   simulationRunning: boolean;
 }
 
 const DeliveryMap: React.FC<DeliveryMapProps> = ({ 
   locations, 
-  onRouteGenerated,
   simulationRunning
 }) => {
   // Refs for the map container and map instance
@@ -83,13 +86,8 @@ const DeliveryMap: React.FC<DeliveryMapProps> = ({
       // Add markers for all locations
       addMarkers();
 
-      // Generate initial route between pickup and dropoff
-      const pickupLocation = locations.find(loc => loc.id === 'pickup')!.coordinates;
-      const dropoffLocation = locations.find(loc => loc.id === 'dropoff')!.coordinates;
-      const initialRoute = generateRoute(pickupLocation, dropoffLocation, 10);
-      
-      updateRoute(vehicleRouteRef, initialRoute);
-      onRouteGenerated(initialRoute);
+      // Generate initial route
+      updateRoute();
 
       toast({
         title: "Map loaded successfully",
@@ -108,7 +106,19 @@ const DeliveryMap: React.FC<DeliveryMapProps> = ({
   // Add markers for pickup, dropoff and vehicle
   const addMarkers = () => {
     locations.forEach(location => {
-      const markerElement = createMarkerElement(location.type);
+      let markerElement = document.createElement('div');
+
+      // Style based on marker type
+      if (location.type === 'pickup') {
+        markerElement.className = 'w-6 h-6 bg-emerald-600 rounded-full flex items-center justify-center border-2 border-white';
+        markerElement.innerHTML = '<span class="text-white text-xs font-bold">P</span>';
+      } else if (location.type === 'dropoff') {
+        markerElement.className = 'w-6 h-6 bg-red-600 rounded-full flex items-center justify-center border-2 border-white';
+        markerElement.innerHTML = '<span class="text-white text-xs font-bold">D</span>';
+      } else {
+        markerElement.className = 'w-6 h-6 bg-blue-600 rounded-full flex items-center justify-center border-2 border-white';
+        markerElement.innerHTML = '<span class="text-white text-xs font-bold">V</span>';
+      }
 
       const marker = new mapboxgl.Marker({
         element: markerElement,
@@ -129,6 +139,41 @@ const DeliveryMap: React.FC<DeliveryMapProps> = ({
     });
   };
 
+  // Generate a route between two points with some randomness
+  const generateRoute = (start: [number, number], end: [number, number], numPoints: number) => {
+    const route: [number, number][] = [start];
+    
+    // Linear interpolation with random offsets
+    for (let i = 1; i < numPoints - 1; i++) {
+      const ratio = i / numPoints;
+      const lng = start[0] + (end[0] - start[0]) * ratio + (Math.random() - 0.5) * 0.01;
+      const lat = start[1] + (end[1] - start[1]) * ratio + (Math.random() - 0.5) * 0.01;
+      route.push([lng, lat]);
+    }
+    
+    route.push(end);
+    return route;
+  };
+  
+  // Update the route displayed on the map
+  const updateRoute = () => {
+    const pickup = locations.find(loc => loc.id === 'pickup')?.coordinates;
+    const dropoff = locations.find(loc => loc.id === 'dropoff')?.coordinates;
+    
+    if (pickup && dropoff && vehicleRouteRef.current) {
+      const route = generateRoute(pickup, dropoff, 10);
+      
+      vehicleRouteRef.current.setData({
+        type: 'Feature',
+        properties: {},
+        geometry: {
+          type: 'LineString',
+          coordinates: route
+        }
+      });
+    }
+  };
+
   // This effect updates the vehicle marker position and centers the map
   useEffect(() => {
     const vehicleLocation = locations.find(loc => loc.id === 'vehicle');
@@ -144,11 +189,16 @@ const DeliveryMap: React.FC<DeliveryMapProps> = ({
         });
       }
     }
+
+    // Update the route if needed
+    if (vehicleRouteRef.current) {
+      updateRoute();
+    }
   }, [locations, simulationRunning]);
 
   return (
     <div className="relative">
-      <div ref={mapContainer} className="w-full h-[500px]" />
+      <div ref={mapContainer} className="w-full h-[500px] rounded-md overflow-hidden" />
       
       <div className="absolute bottom-4 left-4 bg-white p-3 rounded-lg shadow-md">
         <h3 className="font-semibold text-sm mb-2">Order Details</h3>

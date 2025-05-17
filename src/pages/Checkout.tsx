@@ -5,7 +5,7 @@ import { useCart } from '@/context/CartContext';
 import { useToast } from '@/hooks/use-toast';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
-import { CustomerDetails, ShippingSlot } from '@/types/checkout';
+import { CustomerDetails, ShippingSlot, CouponType, CheckoutData } from '@/types/checkout';
 import CustomerDetailsForm from '@/components/Checkout/CustomerDetailsForm';
 import ShippingAddressForm from '@/components/Checkout/ShippingAddressForm';
 import DeliveryMethodSelector from '@/components/Checkout/DeliveryMethodSelector';
@@ -23,9 +23,10 @@ const Checkout = () => {
   const [isMapDialogOpen, setIsMapDialogOpen] = useState(false);
   const [customerLocation, setCustomerLocation] = useState<[number, number] | null>(null);
   const [deliveryAddress, setDeliveryAddress] = useState('');
-  const [paymentMethod, setPaymentMethod] = useState('cash');
+  const [paymentMethod, setPaymentMethod] = useState('card');
   const [shippingMethod, setShippingMethod] = useState('standard');
   const [selectedSlot, setSelectedSlot] = useState<string | null>(null);
+  const [appliedCoupon, setAppliedCoupon] = useState<CouponType | undefined>(undefined);
   const [customerDetails, setCustomerDetails] = useState<CustomerDetails>({
     firstName: '',
     lastName: '',
@@ -51,11 +52,29 @@ const Checkout = () => {
   // Calculate subtotal
   const subtotal = calculateTotalPrice();
   
-  // Calculate delivery fee based on shipping method
-  const deliveryFee = shippingMethod === 'express' ? 60 : 30;
+  // Calculate delivery fee based on shipping method and applied coupon
+  const baseDeliveryFee = shippingMethod === 'express' ? 60 : 30;
+  const deliveryFee = appliedCoupon?.type === 'shipping' ? 0 : baseDeliveryFee;
+  
+  // Calculate discount
+  const calculateDiscount = () => {
+    if (!appliedCoupon) return 0;
+    
+    if (appliedCoupon.type === "percentage") {
+      return Math.floor((subtotal * appliedCoupon.discount) / 100);
+    } else if (appliedCoupon.type === "fixed") {
+      return appliedCoupon.discount;
+    } else if (appliedCoupon.type === "shipping") {
+      return baseDeliveryFee;
+    }
+    
+    return 0;
+  };
+  
+  const discount = calculateDiscount();
   
   // Calculate total
-  const total = subtotal + deliveryFee;
+  const total = subtotal + deliveryFee - (appliedCoupon ? discount : 0);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -104,7 +123,7 @@ const Checkout = () => {
 
     // Store checkout data in session storage for payment page
     const selectedSlotObj = shippingSlots.find(s => s.id === selectedSlot);
-    const checkoutData = {
+    const checkoutData: CheckoutData = {
       fullName: `${customerDetails.firstName} ${customerDetails.lastName}`,
       email: customerDetails.email,
       phone: customerDetails.phone,
@@ -119,7 +138,8 @@ const Checkout = () => {
       paymentMethod: paymentMethod,
       deliveryFee: deliveryFee,
       subtotal: subtotal,
-      total: total
+      total: total,
+      appliedCoupon: appliedCoupon
     };
     
     sessionStorage.setItem('checkoutData', JSON.stringify(checkoutData));
@@ -190,6 +210,8 @@ const Checkout = () => {
                   subtotal={subtotal}
                   deliveryFee={deliveryFee}
                   total={total}
+                  appliedCoupon={appliedCoupon}
+                  setAppliedCoupon={setAppliedCoupon}
                 />
               </div>
             </div>
