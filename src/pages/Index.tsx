@@ -20,7 +20,6 @@ import NutritionalInfoSection from '@/components/HomePageSections/NutritionalInf
 import SustainabilitySection from '@/components/HomePageSections/SustainabilitySection';
 import DeliveryDetailsSection from '@/components/HomePageSections/DeliveryDetailsSection';
 import SabjiWalaAI from '@/components/SabjiWalaAI';
-import GoatAnimation from '@/components/GoatAnimation';
 
 const Index = () => {
   console.log("Index component rendering");
@@ -30,9 +29,6 @@ const Index = () => {
         <Header />
         <main className="flex-grow">
           <HeroSection />
-          <div className="container mx-auto px-4">
-            <GoatAnimation />
-          </div>
           <TrustBadges />
           <PromotionsCarousel />
           <FeaturesSection />
