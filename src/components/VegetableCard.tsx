@@ -49,7 +49,7 @@ const VegetableCard: React.FC<VegetableCardProps> = ({ vegetable }) => {
     >
       <div className="relative">
         <Link to={`/vegetable/${vegetable.id}`} className="block">
-          <ProductImageCarousel images={vegetable.images} />
+          <ProductImageCarousel images={vegetable.images || []} />
         </Link>
         <button 
           onClick={handleToggleFavorite}

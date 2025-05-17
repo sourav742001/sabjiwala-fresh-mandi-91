@@ -84,36 +84,38 @@ const Cart = () => {
                   
                   {cartItems.map((item) => (
                     <motion.div 
-                      key={item.id}
+                      key={item.vegetable.id}
                       variants={itemVariants}
                       className="flex items-center gap-4 py-6 border-b border-gray-200"
                     >
-                      <Link to={`/vegetable/${item.id}`} className="shrink-0 w-24 h-24 bg-emerald-50">
+                      <Link to={`/vegetable/${item.vegetable.id}`} className="shrink-0 w-24 h-24 bg-emerald-50">
                         <img 
-                          src={item.images[0].url} 
-                          alt={item.name} 
+                          src={item.vegetable.images && item.vegetable.images.length > 0 
+                            ? item.vegetable.images[0].url 
+                            : '/placeholder.svg'}
+                          alt={item.vegetable.name} 
                           className="w-full h-full object-cover"
                         />
                       </Link>
                       
                       <div className="flex-grow">
                         <div className="flex justify-between">
-                          <Link to={`/vegetable/${item.id}`} className="text-lg font-medium text-gray-800 hover:text-emerald-700">
-                            {item.name}
+                          <Link to={`/vegetable/${item.vegetable.id}`} className="text-lg font-medium text-gray-800 hover:text-emerald-700">
+                            {item.vegetable.name}
                           </Link>
                           <span className="text-emerald-700 font-medium">
-                            ₹{item.price * item.quantity}
+                            ₹{item.vegetable.price * item.quantity}
                           </span>
                         </div>
                         
-                        <p className="text-sm text-gray-500 mb-4">₹{item.price}/{item.unit}</p>
+                        <p className="text-sm text-gray-500 mb-4">₹{item.vegetable.price}/{item.vegetable.unit}</p>
                         
                         <div className="flex justify-between items-center">
                           <div className="flex items-center">
                             <Button 
                               variant="outline" 
                               size="icon"
-                              onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                              onClick={() => updateQuantity(item.vegetable.id, item.quantity - 1)}
                               className="h-8 w-8 text-sm"
                             >
                               -
@@ -122,7 +124,7 @@ const Cart = () => {
                             <Button 
                               variant="outline" 
                               size="icon"
-                              onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                              onClick={() => updateQuantity(item.vegetable.id, item.quantity + 1)}
                               className="h-8 w-8 text-sm"
                             >
                               +
@@ -132,7 +134,7 @@ const Cart = () => {
                           <Button 
                             variant="ghost"
                             size="sm"
-                            onClick={() => removeFromCart(item.id)}
+                            onClick={() => removeFromCart(item.vegetable.id)}
                             className="text-red-600 hover:text-red-700 hover:bg-red-50"
                           >
                             <Trash2 size={16} className="mr-1" />

@@ -10,21 +10,25 @@ interface ProductImage {
 }
 
 interface ProductImageCarouselProps {
-  images: ProductImage[];
+  images?: ProductImage[];
   className?: string;
 }
 
-const ProductImageCarousel: React.FC<ProductImageCarouselProps> = ({ images, className = "" }) => {
+const ProductImageCarousel: React.FC<ProductImageCarouselProps> = ({ images = [], className = "" }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   
   const handleNext = (e?: React.MouseEvent) => {
     if (e) e.preventDefault();
-    setCurrentIndex((prevIndex) => (prevIndex + 1) % images.length);
+    if (images.length > 0) {
+      setCurrentIndex((prevIndex) => (prevIndex + 1) % images.length);
+    }
   };
   
   const handlePrev = (e?: React.MouseEvent) => {
     if (e) e.preventDefault();
-    setCurrentIndex((prevIndex) => (prevIndex - 1 + images.length) % images.length);
+    if (images.length > 0) {
+      setCurrentIndex((prevIndex) => (prevIndex - 1 + images.length) % images.length);
+    }
   };
 
   if (!images || images.length === 0) {
@@ -39,8 +43,8 @@ const ProductImageCarousel: React.FC<ProductImageCarouselProps> = ({ images, cla
     <div className={`relative w-full h-64 overflow-hidden bg-emerald-50 ${className}`}>
       <motion.img
         key={currentIndex}
-        src={images[currentIndex].url}
-        alt={images[currentIndex].alt}
+        src={images[currentIndex]?.url || '/placeholder.svg'}
+        alt={images[currentIndex]?.alt || 'Product image'}
         className="w-full h-full object-cover"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
