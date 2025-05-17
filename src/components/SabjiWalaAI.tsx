@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Bot, X, Send, Info, ChevronDown, ChevronUp, HelpCircle, Leaf, Cooking2, Truck, ThumbsUp } from 'lucide-react';
+import { Bot, X, Send, Info, ChevronDown, ChevronUp, HelpCircle, Leaf, Utensils, Truck, ThumbsUp } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
@@ -63,7 +63,7 @@ const chatOptions: ChatOption[] = [
   },
   {
     id: 'cooking',
-    icon: <Cooking2 className="h-5 w-5 text-amber-600" />,
+    icon: <Utensils className="h-5 w-5 text-amber-600" />,
     label: 'Cooking Tips',
     description: 'Get recipe ideas and cooking advice',
     suggestedQuestions: [
