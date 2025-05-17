@@ -16,7 +16,6 @@ type CartContextType = {
   updateQuantity: (vegetableId: number, quantity: number) => void;
   clearCart: () => void;
   calculateTotalPrice: () => number;
-  // Add these properties to fix the TypeScript errors
   cartItems: CartItem[];
   cartTotal: number;
 };
@@ -31,7 +30,12 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   useEffect(() => {
     const storedCart = localStorage.getItem('cart');
     if (storedCart) {
-      setCart(JSON.parse(storedCart));
+      try {
+        setCart(JSON.parse(storedCart));
+      } catch (error) {
+        console.error('Error parsing cart from localStorage:', error);
+        localStorage.removeItem('cart');
+      }
     }
   }, []);
 
@@ -128,7 +132,6 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
       updateQuantity, 
       clearCart,
       calculateTotalPrice,
-      // Add these to match the type definition
       cartItems: cart,
       cartTotal
     }}>
@@ -137,7 +140,7 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   );
 };
 
-export const useCart = () => {
+export const useCart = (): CartContextType => {
   const context = useContext(CartContext);
   if (context === undefined) {
     throw new Error('useCart must be used within a CartProvider');
