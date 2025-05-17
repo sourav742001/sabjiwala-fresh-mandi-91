@@ -101,8 +101,9 @@ const Checkout = () => {
       });
       return;
     }
-    
+
     // Store checkout data in session storage for payment page
+    const selectedSlotObj = shippingSlots.find(s => s.id === selectedSlot);
     const checkoutData = {
       fullName: `${customerDetails.firstName} ${customerDetails.lastName}`,
       email: customerDetails.email,
@@ -113,7 +114,9 @@ const Checkout = () => {
       pincode: customerDetails.pincode,
       notes: customerDetails.notes,
       selectedSlot: selectedSlot,
+      slotTime: selectedSlotObj ? `${selectedSlotObj.day}, ${selectedSlotObj.time}` : '',
       shippingMethod: shippingMethod,
+      paymentMethod: paymentMethod,
       deliveryFee: deliveryFee,
       subtotal: subtotal,
       total: total
