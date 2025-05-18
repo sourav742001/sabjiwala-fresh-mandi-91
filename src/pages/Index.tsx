@@ -20,6 +20,7 @@ import NutritionalInfoSection from '@/components/HomePageSections/NutritionalInf
 import SustainabilitySection from '@/components/HomePageSections/SustainabilitySection';
 import DeliveryDetailsSection from '@/components/HomePageSections/DeliveryDetailsSection';
 import SabjiWalaAI from '@/components/SabjiWalaAI';
+import ValuePropositionSection from '@/components/HomePageSections/ValuePropositionSection';
 
 const Index = () => {
   console.log("Index component rendering");
@@ -44,6 +45,7 @@ const Index = () => {
           <OurFarmers />
           <DeliveryDetailsSection />
           <DownloadAppSection />
+          <ValuePropositionSection />
           <Newsletter />
         </main>
         <Footer />
