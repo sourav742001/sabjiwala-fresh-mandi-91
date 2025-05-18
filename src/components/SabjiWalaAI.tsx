@@ -1,7 +1,6 @@
-
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Bot, X, Send, Info, ChevronDown, ChevronUp, HelpCircle, Leaf, Utensils, Truck, ThumbsUp } from 'lucide-react';
+import { Bot, X, Send, Info, ChevronDown, ChevronUp, HelpCircle, Leaf, Utensils, Truck, ThumbsUp, MessageCircle } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
@@ -133,6 +132,11 @@ const SabjiWalaAI = () => {
     setIsMinimized(!isMinimized);
   };
 
+  const openWhatsAppChat = () => {
+    const message = encodeURIComponent("Hello! I have a query about SabjiWala services.");
+    window.open(`https://wa.me/919871574228?text=${message}`, '_blank');
+  };
+
   const handleSend = (e: React.FormEvent) => {
     e.preventDefault();
     if (!message.trim()) return;
@@ -251,7 +255,23 @@ const SabjiWalaAI = () => {
 
   return (
     <>
-      {/* Floating Button */}
+      {/* WhatsApp Button */}
+      <motion.div
+        className="fixed bottom-24 right-6 z-50"
+        initial={{ scale: 0 }}
+        animate={{ scale: 1 }}
+        transition={{ type: "spring", stiffness: 260, damping: 20 }}
+      >
+        <Button
+          onClick={openWhatsAppChat}
+          className="rounded-full w-14 h-14 shadow-lg flex items-center justify-center bg-green-600 hover:bg-green-700"
+          aria-label="Chat on WhatsApp"
+        >
+          <MessageCircle size={24} />
+        </Button>
+      </motion.div>
+
+      {/* Floating Button for AI Chat */}
       <motion.div
         className="fixed bottom-6 right-6 z-50"
         initial={{ scale: 0 }}
@@ -299,9 +319,28 @@ const SabjiWalaAI = () => {
                   <p className="text-xs text-emerald-100">Your SabjiWala assistant</p>
                 </div>
               </div>
-              <Button variant="ghost" size="icon" className="h-8 w-8 text-white hover:bg-emerald-800/20" onClick={toggleMinimize}>
-                {isMinimized ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
-              </Button>
+              <div className="flex items-center">
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  className="h-8 w-8 text-white hover:bg-emerald-800/20 mr-1"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    openWhatsAppChat();
+                  }}
+                  aria-label="Chat on WhatsApp"
+                >
+                  <MessageCircle size={18} />
+                </Button>
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  className="h-8 w-8 text-white hover:bg-emerald-800/20" 
+                  onClick={toggleMinimize}
+                >
+                  {isMinimized ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
+                </Button>
+              </div>
             </div>
 
             {/* Chat Messages */}
@@ -472,4 +511,3 @@ const SabjiWalaAI = () => {
 };
 
 export default SabjiWalaAI;
-
