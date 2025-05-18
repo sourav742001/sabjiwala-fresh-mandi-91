@@ -101,12 +101,12 @@ const Footer = () => {
               </div>
               <div className="flex items-center">
                 <Phone className="w-5 h-5 mr-3 text-emerald-400" />
-                <p className="text-gray-300">+91 98765 43210</p>
+                <p className="text-gray-300">+91 9871574228</p>
               </div>
               <div className="flex items-center">
                 <Mail className="w-5 h-5 mr-3 text-emerald-400" />
-                <a href="mailto:info@thesabjiwala.com" className="text-gray-300 hover:text-emerald-400 transition-colors">
-                  info@thesabjiwala.com
+                <a href="mailto:developermishra18@gmail.com" className="text-gray-300 hover:text-emerald-400 transition-colors">
+                  developermishra18@gmail.com
                 </a>
               </div>
             </div>

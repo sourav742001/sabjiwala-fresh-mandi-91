@@ -13,8 +13,8 @@ const Profile = () => {
   const { toast } = useToast();
   const [profileData, setProfileData] = useState({
     name: 'John Doe',
-    email: 'john.doe@example.com',
-    phone: '+91 98765 43210',
+    email: 'developermishra18@gmail.com',
+    phone: '+91 9871574228',
     addresses: [
       {
         id: 1,
