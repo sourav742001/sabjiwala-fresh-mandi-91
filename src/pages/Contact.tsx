@@ -27,8 +27,8 @@ const contactInfo = [
   {
     icon: <MapPin className="h-6 w-6 text-emerald-600" />,
     title: 'Address',
-    content: 'Main Sabji Mandi, Azadpur',
-    detail: 'Delhi - 110033, India'
+    content: 'Bhim Nagar, JJ Colony No 3, Nangloi',
+    detail: 'Delhi, 110087, India'
   }
 ];
 
@@ -50,14 +50,14 @@ const Contact = () => {
     const map = new mapboxgl.Map({
       container: 'contact-map',
       style: 'mapbox://styles/mapbox/streets-v12',
-      center: [77.1734, 28.7078], // Azadpur, Delhi
+      center: [77.0688, 28.6849], // Nangloi, Delhi
       zoom: 13,
     });
     
     // Add marker
     new mapboxgl.Marker({ color: '#10b981' })
-      .setLngLat([77.1734, 28.7078])
-      .setPopup(new mapboxgl.Popup().setHTML("<h3>The SabjiWala HQ</h3><p>Main Sabji Mandi, Azadpur</p>"))
+      .setLngLat([77.0688, 28.6849])
+      .setPopup(new mapboxgl.Popup().setHTML("<h3>The SabjiWala HQ</h3><p>Bhim Nagar, JJ Colony No 3, Nangloi, Delhi</p>"))
       .addTo(map);
     
     // Add navigation control

@@ -40,7 +40,7 @@ const DeliveryMap: React.FC<DeliveryMapProps> = ({
     map.current = new mapboxgl.Map({
       container: mapContainer.current,
       style: 'mapbox://styles/mapbox/streets-v12',
-      center: [77.1025, 28.6139], // Center on Delhi
+      center: [77.0688, 28.6849], // Nangloi, Delhi coordinates
       zoom: 11
     });
 
@@ -205,7 +205,7 @@ const DeliveryMap: React.FC<DeliveryMapProps> = ({
         <div className="space-y-1">
           <div className="flex items-center gap-2 text-xs">
             <div className="w-3 h-3 rounded-full bg-emerald-600"></div>
-            <span>Pickup: Jwalapuri Mandi</span>
+            <span>Pickup: TheSabjiWala HQ</span>
           </div>
           <div className="flex items-center gap-2 text-xs">
             <div className="w-3 h-3 rounded-full bg-red-600"></div>

@@ -97,7 +97,7 @@ const Footer = () => {
             <div className="space-y-4">
               <div className="flex items-start">
                 <MapPin className="w-5 h-5 mr-3 text-emerald-400 mt-1" />
-                <p className="text-gray-300">Main Sabji Mandi, Azadpur, Delhi - 110033, India</p>
+                <p className="text-gray-300">Bhim Nagar, JJ Colony No 3, Nangloi, Delhi, 110087, India</p>
               </div>
               <div className="flex items-center">
                 <Phone className="w-5 h-5 mr-3 text-emerald-400" />

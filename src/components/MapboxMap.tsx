@@ -45,7 +45,7 @@ const MapboxMap = () => {
       map.current = new mapboxGl.Map({
         container: mapContainer.current,
         style: 'mapbox://styles/mapbox/streets-v12',
-        center: [77.1025, 28.7041], // Delhi coordinates
+        center: [77.0688, 28.6849], // Nangloi, Delhi coordinates
         zoom: 11,
         attributionControl: true,
       });
@@ -55,6 +55,12 @@ const MapboxMap = () => {
         new mapboxGl.NavigationControl(),
         'top-right'
       );
+
+      // Add marker for SabjiWala location
+      new mapboxGl.Marker({ color: '#10b981' })
+        .setLngLat([77.0688, 28.6849])
+        .setPopup(new mapboxGl.Popup().setHTML("<h3>The SabjiWala HQ</h3><p>Bhim Nagar, JJ Colony No 3, Nangloi, Delhi, 110087</p>"))
+        .addTo(map.current);
 
       // Success message
       toast({

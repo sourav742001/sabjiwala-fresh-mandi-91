@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import { Button } from './ui/button';
@@ -23,9 +22,9 @@ const CheckoutLocationMap: React.FC<CheckoutLocationMapProps> = ({ onLocationSel
   const [error, setError] = useState<string | null>(null);
   const [mapboxGl, setMapboxGl] = useState<any | null>(null);
   const [selectedLocation, setSelectedLocation] = useState<{ lat: number; lng: number; address: string }>({
-    lat: 28.7041,
-    lng: 77.1025,
-    address: "Delhi, India"
+    lat: 28.6849,
+    lng: 77.0688,
+    address: "Bhim Nagar, JJ Colony No 3, Nangloi, Delhi, 110087, India"
   });
   const { toast } = useToast();
 

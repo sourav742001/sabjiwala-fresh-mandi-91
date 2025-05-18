@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import Header from '@/components/Header';
@@ -19,9 +18,9 @@ const Profile = () => {
       {
         id: 1,
         type: 'Home',
-        address: '123 Green Street, Model Town',
+        address: 'Bhim Nagar, JJ Colony No 3, Nangloi',
         city: 'Delhi',
-        pincode: '110033',
+        pincode: '110087',
         isDefault: true
       },
       {
