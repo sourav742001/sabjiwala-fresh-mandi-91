@@ -6,25 +6,25 @@ const CategoriesSection = () => {
   const categories = [
     {
       name: 'Fresh Vegetables',
-      image: 'https://images.unsplash.com/photo-1618160702438-9b02ab6515c9?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80',
+      image : 'https://cdn11.bigcommerce.com/s-uemzj79jf9/images/stencil/2048x2048/products/1643/3433/vegetables_pic1__24497.1655405427.jpg?c=2',
       count: '25+ Items',
       color: 'bg-green-100',
     },
     {
       name: 'Seasonal Fruits',
-      image: 'https://images.unsplash.com/photo-1493962853295-0fd70327578a?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80',
+      image: 'https://housing.com/news/wp-content/uploads/2022/11/seasonal-vegetables-compressed.jpg',
       count: '20+ Items',
       color: 'bg-orange-100',
     },
     {
       name: 'Daily Combos',
-      image: 'https://images.unsplash.com/photo-1465379944081-7f47de8d74ac?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80',
+      image: 'https://bf1af2.a-cdn.akinoncloud.com/products/2024/09/11/63767/5d44e516-d2ed-492a-901d-42ad12d501b4_size3840x4690_cropCenter.jpg',
       count: '10+ Items',
       color: 'bg-yellow-100',
     },
     {
       name: 'Exotic Selection',
-      image: 'https://images.unsplash.com/photo-1501286353178-1ec871814838?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80',
+      image: 'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgecNR2b5UApPVmz7a3UxyKT0fdd9O6WBuoE51PCHhQGufRUfos8TYSehTUrhqryyJi3DWn5lJBXto8t7IAy1ekwW4sH08vZtJ_diRa0mLl5vATHcedkkrjKVaBpT8_tGFzSYr4dl9bHiM/s1523/IMG_20210314_221221_764%257E2_compress80.jpg',
       count: '15+ Items',
       color: 'bg-purple-100',
     },
