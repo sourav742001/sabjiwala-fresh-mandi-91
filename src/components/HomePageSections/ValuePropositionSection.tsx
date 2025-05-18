@@ -3,9 +3,10 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { 
   Clock, Truck, CreditCard, ShieldCheck, Leaf, RotateCcw, 
-  Mail, MapPin, Phone
+  Mail, MapPin, Phone, MessageCircle
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Link } from 'react-router-dom';
 
 const features = [
   {
@@ -123,7 +124,7 @@ const ValuePropositionSection = () => {
               </div>
               
               <Button size="lg" variant="default" className="bg-white text-emerald-800 hover:bg-gray-100">
-                Shop Now
+                <Link to="/shop">Shop Now</Link>
               </Button>
             </div>
             
@@ -137,26 +138,42 @@ const ValuePropositionSection = () => {
                   </div>
                   <div>
                     <p className="text-white">
-                      TheSabjiWala Headquarters<br />
-                      123 Green Avenue, Delhi<br />
-                      India - 110001
+                      Bhim Nagar, JJ Colony No 3, <br />
+                      Nangloi, Delhi, 110087, <br />
+                      India
                     </p>
                   </div>
                 </div>
                 
                 <div className="flex items-center">
                   <Phone size={18} className="text-emerald-300 mr-3" />
-                  <p className="text-white">+91-9876543210</p>
+                  <a href="tel:+919871574228" className="text-white hover:text-emerald-200 transition-colors">
+                    +91 9871574228
+                  </a>
                 </div>
                 
                 <div className="flex items-center">
                   <Mail size={18} className="text-emerald-300 mr-3" />
-                  <p className="text-white">info@thesabjiwala.com</p>
+                  <a href="mailto:developermishra18@gmail.com" className="text-white hover:text-emerald-200 transition-colors">
+                    developermishra18@gmail.com
+                  </a>
+                </div>
+                
+                <div className="flex items-center">
+                  <MessageCircle size={18} className="text-emerald-300 mr-3" />
+                  <a 
+                    href="https://wa.me/919871574228" 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    className="text-white hover:text-emerald-200 transition-colors"
+                  >
+                    Chat on WhatsApp
+                  </a>
                 </div>
                 
                 <div className="pt-4">
                   <Button variant="outline" className="bg-transparent border-white text-white hover:bg-emerald-600 w-full">
-                    Contact Us
+                    <Link to="/contact">Contact Us</Link>
                   </Button>
                 </div>
               </div>
